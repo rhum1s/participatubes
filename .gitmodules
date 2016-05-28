@@ -1,0 +1,3 @@
+[submodule "scriptTools"]
+	path = scriptTools
+	url = https://github.com/rhum1s/scriptTools.git
