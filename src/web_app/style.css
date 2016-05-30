@@ -34,9 +34,10 @@ html, body, #map {
     background-color:#3399ff;
     color: #fff0e6; 
     font-family: 'Open Sans', sans-serif; 
-    font-size: 30px; 
+    font-size: 50px; 
     font-weight: 300; 
     line-height: 32px; 
-    margin: 0 0 0px; 
+    margin: 0 0 0 0px; 
+	padding-bottom:2px;
     text-align: left;
 }
