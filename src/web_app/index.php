@@ -75,8 +75,7 @@ function loadGeoJson_tubes(data) {
         // style: style,
         onEachFeature: onEachFeature,
         /* FIXME: Bug dans l'emplacement des markeurs spéciaux" */
-        pointToLayer: function (geojson, latlng) {
-            console.log();
+        pointToLayer: function (geojson, latlng) {        
             if (geojson.properties['type_id'] == 2) {
                 return L.marker(latlng, {icon: icon1});                    
             } else if (geojson.properties['type_id'] == 1) {
@@ -85,8 +84,16 @@ function loadGeoJson_tubes(data) {
                 return L.marker(latlng, {icon: icon1});
             };
         }, 
-    }).addTo(map); 
-               
+    });
+	    
+	geojsonLayer.addTo(map); 
+
+	// Zoom sur les tubes	
+	var southWest = geojsonLayer.getBounds().getSouthWest();
+	var northEast = geojsonLayer.getBounds().getNorthEast();
+	var bounds = new L.LatLngBounds(southWest, northEast);
+	map.fitBounds(bounds);
+			
     // layerControl.addOverlay(geojsonLayer, "Sites de mesures"); // Add layer to layer switcher
 }; 
  
@@ -130,8 +137,7 @@ $.ajax({
 });
 console.log(layers);   */  
     
-    
-    
+
     
     
     
