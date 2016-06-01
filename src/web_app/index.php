@@ -15,7 +15,18 @@
 <?php include 'scripts/header.php';?>
 <div id="map"></div>
 
+<!-- Loading JQuery -->
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<!-- --- -->
+
+<!-- Loading Bootstrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<!-- --- -->
+
+
+<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 <script src="libs/Leaflet_v0.7.7/leaflet.js"></script>   
 
 <script type="text/javascript" src="libs/geostats-master/lib/geostats.min.js"></script>
@@ -25,7 +36,21 @@
 <script type="text/javascript" src="config.js"></script></script>
 <script type="text/javascript" src="scripts/jenks.js"></script></script>
 
+<link rel="stylesheet" href="libs/font-awesome-4.6.3/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="libs/easy_button/easy-button.css" />
+<script type="text/javascript" src="libs/easy_button/easy-button.js"></script>
+
+
+<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+
+
+
 <script type="text/javascript">
+
+
 
 
 
@@ -42,7 +67,17 @@ function creation_icones() {
     });
     return icon1;
 };
-    
+
+function zoom_to_layer(layer) {
+    /*
+    Zoom sur une couche
+    */
+	var southWest = layer.getBounds().getSouthWest();
+	var northEast = layer.getBounds().getNorthEast();
+	var bounds = new L.LatLngBounds(southWest, northEast);
+    map.fitBounds(bounds);
+};   
+   
 function zoomToFeature(e) {
     map.setView(e.latlng, 17);
 };
@@ -89,10 +124,7 @@ function loadGeoJson_tubes(data) {
 	geojsonLayer.addTo(map); 
 
 	// Zoom sur les tubes	
-	var southWest = geojsonLayer.getBounds().getSouthWest();
-	var northEast = geojsonLayer.getBounds().getNorthEast();
-	var bounds = new L.LatLngBounds(southWest, northEast);
-	map.fitBounds(bounds);
+    zoom_to_layer(geojsonLayer);
 			
     // layerControl.addOverlay(geojsonLayer, "Sites de mesures"); // Add layer to layer switcher
 }; 
@@ -138,11 +170,133 @@ $.ajax({
 console.log(layers);   */  
     
 
+/* Creation d'un control leaflet pour afficher du texte html */
+var displayControl = L.Control.extend({
+    options: {
+        position: 'topright'
+    },
+    onAdd: function (map) {
+        // Create a container with classname and return it
+        return L.DomUtil.create('div', 'my-display-control');
+    },
+    setContent: function (content) {
+        this.getContainer().innerHTML = content;
+    }
+});
+
+var displayControl =  new displayControl().addTo(map);
+displayControl.setContent('Afficher graphiques ici?');
+// displayControl.setContent($.get("scripts/header.php"));
+// displayControl.setContent($.get("scripts/header.php"));
     
     
+// var helloPopup = L.popup().setContent('Hello World!');
+// L.easyButton('fa-globe', function(btn, map){
+    // helloPopup.setLatLng(map.getCenter()).openOn(map);
+// }).addTo(map); // probably just `map`
+
+// var antarctica = [-77,70];
+// L.easyButton('<img src="/path/to/img/of/penguin.png">', function(btn, map){
+    // map.setView(antarctica);
+// }).addTo( map );
+   
+// var stateChangingButton = L.easyButton({
+    // states: [{
+            // stateName: 'zoom-to-forest',   // name the state
+            // icon:      'fa-tree',          // and define its properties
+            // title:     'zoom to a forest', // like its title
+            // onClick: function(btn, map) {  // and its callback
+                // map.setView([46.25,-121.8],10);
+                // btn.state('zoom-to-school'); // change state on click!
+            // }
+        // }, {
+            // stateName: 'zoom-to-school',
+            // icon:      'fa-university',
+            // title:     'zoom to a school',
+            // onClick: function(btn, map) {
+                // map.setView([42.3748204,-71.1161913],16);
+                // btn.state('zoom-to-forest');
+            // }
+    // }]
+// });
+
+// stateChangingButton.addTo( map );
+
     
-    
-    
-</script>
+/* Boutons de carte (Easy-buttons) */
+L.easyButton( 'fa-arrows', function(){
+    zoom_to_layer(geojsonLayer)
+}).addTo(map);
+
+var toggle = L.easyButton({
+    id: 'bouton-afficher-tubes',  // an id for the generated button
+    position: 'topleft',      // inherited from L.Control -- the corner it goes in
+    type: 'replace',          // set to animate when you're comfy with css
+    leafletClasses: true,     // use leaflet classes to style the button?  
+    states: [{
+        stateName: 'remove-markers',
+        icon: 'fa-undo',
+        title: 'Retirer les tubes',
+        onClick: function(control) {
+            map.removeLayer(geojsonLayer);
+            control.state('add-markers');
+            // toggle.button.style.backgroundColor = 'white';
+        }
+    }, {
+        stateName: 'add-markers',
+        icon: 'fa-map-marker',
+        title: 'Ajouter les tubes',
+        onClick: function(control) {
+            map.addLayer(geojsonLayer);
+            control.state('remove-markers');
+            // toggle.button.style.backgroundColor = 'red';
+        },
+    }]
+});
+// toggle.button.style.width = '200px';
+// toggle.button.style.height = '100px';
+// toggle.button.style.backgroundColor = 'green'; // repeated line (note below)
+// toggle.button.style.transitionDuration = '.3s';
+
+toggle.addTo(map);
+
+
+// L.easyButton('fa-arrows', function( buttonArg, mapArg ){
+  // buttonArg.doStuff();
+  // mapArg.doStuff();
+// }).addTo(map);
+
+/* CUSTOM CONTROL EXAMPLE 
+var customControl =  L.Control.extend({
+
+  options: {
+    position: 'topleft'
+  },
+
+  onAdd: function (map) {
+    var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+
+    container.style.backgroundColor = 'white';     
+    container.style.backgroundImage = 'url(icons/marker-icon.png)'; // "url(http://t1.gstatic.com/images?q=tbn:ANd9GcR6FCUMW5bPn8C4PbKak2BJQQsmC-K9-mbYBeFZm1ZM2w2GRy40Ew)";
+    container.style.backgroundSize = "10px 10px";
+    // container.style.background-repeat = "no-repeat";
+    container.style.width = '30px';
+    container.style.height = '30px';
+
+    container.onclick = function(){
+      console.log('buttonClicked');
+    }
+
+    return container;
+  }
+});
+map.addControl(new customControl()); */
+
+  
+  
+  
+   </script>
+  
+   
 </body>
 </html>    

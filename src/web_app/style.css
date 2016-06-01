@@ -1,4 +1,4 @@
-html, body, #map {
+html, body, #map  {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -41,3 +41,18 @@ html, body, #map {
 	padding-bottom:2px;
     text-align: left;
 }
+
+.my-display-control {
+    padding:5px 10px;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    font-size: 11px;
+    line-height: 18px;
+    border-radius: 5px;
+    height:450px;
+    width:300px;
+}
+.my-display-control:empty {
+    display: none;
+}
+
