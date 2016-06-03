@@ -1,59 +1,160 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<title>Participatubes</title>
-	
-	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
-    <link rel="stylesheet" href="style.css"/>
+    <title>Participatubes</title>
+    
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>    
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+        
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <script src="libs/Leaflet_v0.7.7/leaflet.js"></script>  
+    <link rel="stylesheet" href="style-bootstrap.css"/>
+
+    <!-- Font Awesome -->
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="libs/font-awesome-4.6.3/css/font-awesome.min.css">
+
+    <!-- Easy Button -->
+    <link rel="stylesheet" href="libs/easy_button/easy-button.css" />
+    <script type="text/javascript" src="libs/easy_button/easy-button.js"></script>
+
+    <!-- IonIcons -->
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+        
+    <!-- Config -->
+    <script type="text/javascript" src="config.js"></script></script>
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="libs/geostats-master/lib/geostats.min.js"></script>
+    <script type="text/javascript" src="libs/chroma.js-master/chroma.min.js"></script>
+    <script type="text/javascript" src="scripts/jenks.js"></script></script>
+    
 </head>
+
+<!------------------------------------------------------------------------------ 
+                                    Body
+------------------------------------------------------------------------------->
 <body>
 
-<?php include 'scripts/header.php';?>
-<div id="map"></div>
+<!-- https://getbootstrap.com/components/#navbar -->
+<!-- http://getbootstrap.com/javascript/ -->
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+    
+      <a class="navbar-brand" href="#">
+        <img alt="Brand" src="icons/marker-icon.png">
+      </a>    
+    
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <?php include 'scripts/header-bootstrap-title.php';?>
+      <!-- <a class="navbar-brand" href="#">Brandvvv</a> -->
+    </div>
 
-<!-- Loading JQuery -->
-<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-<!-- --- -->
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+ 
+        <div class="btn-group" role="group" aria-label="...">
+            <button type="button" class="btn btn-default navbar-btn" onclick="bootstrap_home();">
+                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+            </button>
 
-<!-- Loading Bootstrap -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-<!-- --- -->
+            <button type="button" class="btn btn-default navbar-btn" onclick="bootstrap_tubes();">
+                <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
+            </button>        
+        </div> 
 
+        
+        
+        
+        <!-- <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li> -->
+        <!-- <li><a href="#">Link</a></li> -->
+        <!-- <li class="dropdown"> -->
+        <!--   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a> -->
+        <!--   <ul class="dropdown-menu"> -->
+        <!--     <li><a href="#">Action</a></li> -->
+        <!--     <li><a href="#">Another action</a></li> -->
+        <!--     <li><a href="#">Something else here</a></li> -->
+        <!--     <li role="separator" class="divider"></li> -->
+        <!--     <li><a href="#">Separated link</a></li> -->
+        <!--     <li role="separator" class="divider"></li> -->
+        <!--     <li><a href="#">One more separated link</a></li> -->
+        <!--   </ul> -->
+        <!-- </li> -->  
+        
+      </ul>
+      <form class="navbar-form navbar-left" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Mon tube">
+        </div>
+        <button type="submit" class="btn btn-default">Recherche</button>
+      </form>
 
-<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-<script src="libs/Leaflet_v0.7.7/leaflet.js"></script>   
+      
+    <!-- Bouton Modal de connexion --> 
+    <ul class="nav navbar-nav navbar-right" data-toggle="modal" data-target="#myModal">
+    <li><a href="#">Connexion</a></li>
+    </ul>
 
-<script type="text/javascript" src="libs/geostats-master/lib/geostats.min.js"></script>
-<script type="text/javascript" src="libs/chroma.js-master/chroma.min.js"></script>
-<!-- <script type="text/javascript" src="libs/leaflet-choropleth-gh-pages/src/choropleth.js"></script> -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Identification administrateur</h4>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-primary">Connexion</button>
+          </div>
+        </div>
+      </div>
+    </div>      
+      
+    </div><!-- /.navbar-collapse -->
 
-<script type="text/javascript" src="config.js"></script></script>
-<script type="text/javascript" src="scripts/jenks.js"></script></script>
+    </div><!-- /.container-fluid -->
+</nav>
+<!-- 
+<div class="container fill">
+     <div id="map"></div> 
+ </div> 
+ -->
+<div id="map"></div> 
 
-<link rel="stylesheet" href="libs/font-awesome-4.6.3/css/font-awesome.min.css">
-
-
-<link rel="stylesheet" href="libs/easy_button/easy-button.css" />
-<script type="text/javascript" src="libs/easy_button/easy-button.js"></script>
-
-
-<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
-
-
-
+<!------------------------------------------------------------------------------ 
+                                    Map script
+------------------------------------------------------------------------------->
 <script type="text/javascript">
+function bootstrap_home(){
+    zoom_to_layer(geojsonLayer);
+};
 
-
+function bootstrap_tubes(){
+    map.removeLayer(geojsonLayer);
+};
 
 function creation_icones() {
-    /* FIXME: Créer une classe icone */
     var icon1 = L.icon({
         iconUrl: 'icons/marker-icon.png',
         shadowUrl: 'icons/marker-shadow.png',
@@ -63,7 +164,22 @@ function creation_icones() {
         shadowAnchor: [13.5, 41],  // the same for the shadow
         popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
     });
-    return icon1;
+    
+    var icon2 = L.icon({
+        iconUrl: 'icons/marker-icon-test.png',
+        shadowUrl: 'icons/marker-shadow.png',
+        // iconSize:     [24, 38], // size of the icon
+        // shadowSize:   [50, 64], // size of the shadow
+        iconAnchor:   [12.5, 41], // point of the icon which will correspond to marker's location
+        shadowAnchor: [13.5, 41],  // the same for the shadow
+        popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
+    });    
+    
+    return {
+        icon1: icon1,
+        icon2: icon2
+    };
+    
 };
 
 function zoom_to_layer(layer) {
@@ -119,11 +235,11 @@ function loadGeoJson_tubes(data) {
         /* FIXME: Bug dans l'emplacement des markeurs spéciaux" */
         pointToLayer: function (geojson, latlng) {        
             if (geojson.properties['type_id'] == 2) {
-                return L.marker(latlng, {icon: icon1});                    
+                return L.marker(latlng, {icon: icones.icon1});                    
             } else if (geojson.properties['type_id'] == 1) {
-                return L.marker(latlng, {icon: icon1});
+                return L.marker(latlng, {icon: icones.icon2});
             } else {
-                return L.marker(latlng, {icon: icon1});
+                return L.marker(latlng, {icon: icones.icon1});
             };
         }, 
     });
@@ -137,7 +253,7 @@ function loadGeoJson_tubes(data) {
 }; 
  
 /* Création des icones */
-var icon1 = creation_icones();
+var icones = creation_icones();
  
 /* Création de la carte */
 var map = L.map('map', {layers: []}).setView([43.9, 7.2], 9);    
@@ -175,15 +291,7 @@ $.ajax({
         // map.fitBounds(layer);
 });
 console.log(layers);   */  
-    
-
-
-    
-    
-    
-    
-    
-    
+       
     
 /* Creation d'un control leaflet pour afficher du texte html */
 var displayControl = L.Control.extend({
@@ -273,12 +381,7 @@ var customControl =  L.Control.extend({
   }
 });
 map.addControl(new customControl()); */
+</script>
 
-  
-  
-  
-   </script>
-  
-   
 </body>
-</html>    
+</html>
