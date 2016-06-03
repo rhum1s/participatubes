@@ -52,8 +52,6 @@
 
 
 
-
-
 function creation_icones() {
     /* FIXME: Créer une classe icone */
     var icon1 = L.icon({
@@ -78,15 +76,23 @@ function zoom_to_layer(layer) {
     map.fitBounds(bounds);
 };   
    
-function zoomToFeature(e) {
+function onClickFeature(e) {
+    /* Zoom sur le tube */
     map.setView(e.latlng, 17);
+   
+    /* Informations du tube */
+    console.log(this._popup._source);
+    tube = this._popup._source.feature;   
+    tube_lat = this._popup._source._latlng.lat;
+    tube_lng = this._popup._source._latlng.lng;
+    console.log(tube.properties.tube_id, tube.properties.tube_nom, tube_lat, tube_lng);
 };
 
 function onEachFeature(feature, layer) {
     layer.on({
         // mouseover: highlightFeature,
         // mouseout: resetHighlight,
-        click: zoomToFeature
+        click: onClickFeature
     });
  
     var popupcontent = [];
@@ -97,7 +103,8 @@ function onEachFeature(feature, layer) {
             popupcontent.push(prop + ": " + feature.properties[prop]);
         };
     }
-    layer.bindPopup(popupcontent.join("<br />"));                      
+    layer.bindPopup(popupcontent.join("<br />"));      
+    
 }; 
 
 function loadGeoJson_tubes(data) {
@@ -170,6 +177,14 @@ $.ajax({
 console.log(layers);   */  
     
 
+
+    
+    
+    
+    
+    
+    
+    
 /* Creation d'un control leaflet pour afficher du texte html */
 var displayControl = L.Control.extend({
     options: {
@@ -186,41 +201,8 @@ var displayControl = L.Control.extend({
 
 var displayControl =  new displayControl().addTo(map);
 displayControl.setContent('Afficher graphiques ici?');
-// displayControl.setContent($.get("scripts/header.php"));
-// displayControl.setContent($.get("scripts/header.php"));
-    
-    
-// var helloPopup = L.popup().setContent('Hello World!');
-// L.easyButton('fa-globe', function(btn, map){
-    // helloPopup.setLatLng(map.getCenter()).openOn(map);
-// }).addTo(map); // probably just `map`
-
-// var antarctica = [-77,70];
-// L.easyButton('<img src="/path/to/img/of/penguin.png">', function(btn, map){
-    // map.setView(antarctica);
-// }).addTo( map );
    
-// var stateChangingButton = L.easyButton({
-    // states: [{
-            // stateName: 'zoom-to-forest',   // name the state
-            // icon:      'fa-tree',          // and define its properties
-            // title:     'zoom to a forest', // like its title
-            // onClick: function(btn, map) {  // and its callback
-                // map.setView([46.25,-121.8],10);
-                // btn.state('zoom-to-school'); // change state on click!
-            // }
-        // }, {
-            // stateName: 'zoom-to-school',
-            // icon:      'fa-university',
-            // title:     'zoom to a school',
-            // onClick: function(btn, map) {
-                // map.setView([42.3748204,-71.1161913],16);
-                // btn.state('zoom-to-forest');
-            // }
-    // }]
-// });
-
-// stateChangingButton.addTo( map );
+ 
 
     
 /* Boutons de carte (Easy-buttons) */
