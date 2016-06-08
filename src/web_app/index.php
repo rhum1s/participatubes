@@ -130,7 +130,32 @@
         </div>
       </div>
     </div>      
-      
+
+    <!-- Bouton Modal d'affichage --> 
+    <ul class="nav navbar-nav navbar-right" data-toggle="modal" data-target="#Modal_affichage"></ul>
+
+    <div class="modal" id="Modal_affichage" tabindex="-1" role="dialog" aria-labelledby="Modal_affichage">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="Modal_affichage">[identifiant] - [nom]</h4>
+          </div>
+          <div class="modal-body-affichage">
+            [AFFICHER LES DONNEES ICI.]
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Quitter</button>
+            <button type="button" class="btn btn-primary">Afficher tout</button>
+          </div>
+        </div>
+      </div>
+    </div>  
+
+
+
+
+    
     </div><!-- /.navbar-collapse -->
 
     </div><!-- /.container-fluid -->
@@ -188,8 +213,9 @@ function zoom_to_layer(layer) {
     */
 	var southWest = layer.getBounds().getSouthWest();
 	var northEast = layer.getBounds().getNorthEast();
+    console.log(southWest, northEast);
 	var bounds = new L.LatLngBounds(southWest, northEast);
-    map.fitBounds(bounds);
+    map.fitBounds(bounds, {padding: [0, 40]});
 };   
    
 function onClickFeature(e) {
@@ -201,7 +227,137 @@ function onClickFeature(e) {
     tube = this._popup._source.feature;   
     tube_lat = this._popup._source._latlng.lat;
     tube_lng = this._popup._source._latlng.lng;
-    console.log(tube.properties.tube_id, tube.properties.tube_nom, tube_lat, tube_lng);
+    
+    // Requête dans la base PostgreSQL
+    $.ajax({
+        url: "scripts/query.php",
+        type: 'GET',
+        data : { tube_id: tube.properties.tube_id },
+        dataType: 'json',
+        success: function(response,textStatus,jqXHR){
+            // console.log(response); 
+            // displayControl.setContent(response[0].tube_nom);
+            content = "" + response[0].tube_nom + ": " + response[0].val;
+            // displayControl.setContent(content);
+            
+            // Affiche les données récupérées          
+            displayControl.setContent('<canvas id="myChart" width="400" height="400"></canvas>');            
+
+            var ctx = document.getElementById("myChart");
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+                    datasets: [{
+                        label: '# of Votes',
+                        data: [12, 19, 3, 5, 2, 3],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255,99,132,1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero:true
+                            }
+                        }]
+                    }
+                }
+            });
+
+            // Active le modal Bootstrap d'affichage
+            console.log($('#Modal_affichage'));
+            
+            // var texte = $('#Modal_affichage')[0].innerHTML;
+            // texte = texte.replace("[identifiant]", response[0].tube_nom)
+            // $('#Modal_affichage')[0].innerHTML = texte;
+
+
+
+            $('#Modal_affichage')[0].innerHTML = $('#Modal_affichage')[0].innerHTML.replace("[AFFICHER LES DONNEES ICI.]", "<canvas id=\"myChart\"></canvas>")
+            $('#Modal_affichage')[0].innerHTML = $('#Modal_affichage')[0].innerHTML.replace("[nom]", response[0].tube_nom); 
+            $('#Modal_affichage')[0].innerHTML = $('#Modal_affichage')[0].innerHTML.replace("[identifiant]", response[0].tube_id); 
+            
+            
+  var ctx = document.getElementById("myChart");
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            // FIXME: Responsive true doesn't work on tablet
+            responsive: false,
+            title: {
+                display: true,
+                text: 'Titre du graphique'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });            
+            
+            
+            
+            
+            
+            $('#Modal_affichage').modal('show');
+
+
+            
+            
+
+
+
+            
+            
+            
+            
+        }
+    });
+    
 };
 
 function onEachFeature(feature, layer) {
@@ -281,19 +437,11 @@ $.ajax({
     jsonCallback: 'getJson',
     success: loadGeoJson_tubes
 });    
-    
-/* var layers = [];
-    map.eachLayer(function(layer) {
-    // if( layer instanceof L.TileLayer )
-        layers.push(layer);
-        console.log(layer);
-        console.log(layer._leaflet_id)
-        // map.fitBounds(layer);
-});
-console.log(layers);   */  
-       
-    
-/* Creation d'un control leaflet pour afficher du texte html */
+ 
+/* Creation d'un control leaflet pour afficher du texte html 
+Pour modifier le contenu:
+displayControl.setContent('Afficher graphiques ici?');
+*/
 var displayControl = L.Control.extend({
     options: {
         position: 'topright'
@@ -306,9 +454,20 @@ var displayControl = L.Control.extend({
         this.getContainer().innerHTML = content;
     }
 });
-
 var displayControl =  new displayControl().addTo(map);
-displayControl.setContent('Afficher graphiques ici?');
+ 
+/* var layers = [];
+    map.eachLayer(function(layer) {
+    // if( layer instanceof L.TileLayer )
+        layers.push(layer);
+        console.log(layer);
+        console.log(layer._leaflet_id)
+        // map.fitBounds(layer);
+});
+console.log(layers);   */  
+       
+    
+
    
  
 
