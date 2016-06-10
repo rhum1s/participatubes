@@ -167,6 +167,7 @@
  -->
 <div id="map"></div> 
 
+
 <!------------------------------------------------------------------------------ 
                                     Map script
 ------------------------------------------------------------------------------->
@@ -229,35 +230,56 @@ function onClickFeature(e) {
     tube_lng = this._popup._source._latlng.lng;
     
     // Requête dans la base PostgreSQL
+    
+    // TODO: Pour chaque poll ete hivert corr corr moy corr an
+    
     $.ajax({
         url: "scripts/query.php",
         type: 'GET',
         data : { tube_id: tube.properties.tube_id },
         dataType: 'json',
         success: function(response,textStatus,jqXHR){
-            // console.log(response); 
+            console.log(response); 
+            console.log("----");
             // displayControl.setContent(response[0].tube_nom);
             content = "" + response[0].tube_nom + ": " + response[0].val;
             // displayControl.setContent(content);
             
             // Affiche les données récupérées          
-            displayControl.setContent('<canvas id="myChart" width="400" height="400"></canvas>');            
-
+            displayControl.setContent('<canvas id="myChart" width="600" height="400"></canvas>');            
+            
+            // -- Labels
+            var graph_labels = [];
+            for (var i in response) {
+                graph_labels.push(response[i].nom_polluant);
+            };            
+            
+            // -- Titre
+            var graph_title = response[0].tube_nom;
+            
+            // -- Données
+            var graph_data = [];
+            for (var i in response) {
+                graph_data.push(response[i].val);
+            };   
+            
+             // Object { tube_id: "4", tube_nom: "Quai du Commerce", nom_polluant: "COV", nom_periode: "Eté", val: "0.7" }           
+            
             var ctx = document.getElementById("myChart");
             var myChart = new Chart(ctx, {
-                type: 'bar',
+                type: 'horizontalBar',          
                 data: {
-                    labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+                    labels: graph_labels,
                     datasets: [{
-                        label: '# of Votes',
-                        data: [12, 19, 3, 5, 2, 3],
+                        label: 'Polluants mesurés',
+                        data: graph_data,
                         backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)',
+                            'rgba(255, 159, 64, 0.8)'
                         ],
                         borderColor: [
                             'rgba(255,99,132,1)',
@@ -271,93 +293,28 @@ function onClickFeature(e) {
                     }]
                 },
                 options: {
+                    title: {
+                        display: true,
+                        fontSize: 30,
+                        text: graph_title
+                    },
+                    legend: {
+                        // display: true,
+                        position: 'bottom',
+                    },
                     scales: {
                         yAxes: [{
                             ticks: {
-                                beginAtZero:true
+                                // beginAtZero:true,
+                                min:0,
+                                max: 100,
                             }
                         }]
                     }
                 }
-            });
-
-            // Active le modal Bootstrap d'affichage
-            console.log($('#Modal_affichage'));
-            
-            // var texte = $('#Modal_affichage')[0].innerHTML;
-            // texte = texte.replace("[identifiant]", response[0].tube_nom)
-            // $('#Modal_affichage')[0].innerHTML = texte;
-
-
-
-            $('#Modal_affichage')[0].innerHTML = $('#Modal_affichage')[0].innerHTML.replace("[AFFICHER LES DONNEES ICI.]", "<canvas id=\"myChart\"></canvas>")
-            $('#Modal_affichage')[0].innerHTML = $('#Modal_affichage')[0].innerHTML.replace("[nom]", response[0].tube_nom); 
-            $('#Modal_affichage')[0].innerHTML = $('#Modal_affichage')[0].innerHTML.replace("[identifiant]", response[0].tube_id); 
-            
-            
-  var ctx = document.getElementById("myChart");
-    var myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-            datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255,99,132,1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            // FIXME: Responsive true doesn't work on tablet
-            responsive: false,
-            title: {
-                display: true,
-                text: 'Titre du graphique'
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero:true
-                    }
-                }]
-            }
-        }
-    });            
-            
-            
-            
-            
-            
-            $('#Modal_affichage').modal('show');
-
-
-            
-            
-
-
-
-            
-            
-            
-            
+            });  
         }
     });
-    
 };
 
 function onEachFeature(feature, layer) {
@@ -540,6 +497,13 @@ var customControl =  L.Control.extend({
   }
 });
 map.addControl(new customControl()); */
+
+
+
+
+
+
+
 </script>
 
 </body>
