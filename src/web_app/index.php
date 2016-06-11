@@ -253,45 +253,47 @@ function zoom_to_layer(layer) {
 };   
    
 function onClickFeature(e) {
+    console.log("User clicked feature");
+
     /* Zoom sur le tube */
-    map.setView(e.latlng, 17);
+    // map.setView(e.latlng, 13);
    
     /* Informations du tube */
-    console.log(this._popup._source);
+    // console.log(this._popup._source);
     tube = this._popup._source.feature;   
     tube_lat = this._popup._source._latlng.lat;
     tube_lng = this._popup._source._latlng.lng;
     
-    // Requête dans la base PostgreSQL
     
-    // TODO: Pour chaque poll ete hivert corr corr moy corr an
+    // Prépare le display control
+    displayControl.setContent('<h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="250"></canvas>');            
     
+    // Affichage des valeurs de NO2
+    // FIXME: Si pas le même nombre de périodes par tubes, le graph sera faux.
     $.ajax({
-        url: "scripts/query.php",
+        url: "scripts/query_no2.php",
         type: 'GET',
         data : { tube_id: tube.properties.tube_id },
         dataType: 'json',
+        error: function (request, error) {
+            console.log(arguments);
+            console.log("Ajax error: " + error);
+        },       
         success: function(response,textStatus,jqXHR){
-            // console.log(response); 
-            // console.log("----");
-            // displayControl.setContent(response[0].tube_nom);
-            content = "" + response[0].tube_nom + ": " + response[0].val;
-            // displayControl.setContent(content);
-            
-            // Affiche les données récupérées          
-            displayControl.setContent('<canvas id="myChart" width="600" height="400"></canvas>');            
-            
-            // Récupérer le NO2 et les BTEX et faire plusieurs datasets
-            
-            
+           
+            // Création des balises HTML du graphique          
+            // displayControl.setContent('<div><canvas id="graph_no2" width="600" height="350"></canvas></div><div><canvas id="graph_btex" width="600" height="350"></canvas></div>');            
+            // displayControl.setContent('<canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="250"></canvas>');            
+            // displayControl.setContent('<canvas id="graph_no2" width="600" height="350"></canvas>');            
+                        
             // -- Labels
             var graph_labels = [];
             for (var i in response) {
-                graph_labels.push(response[i].nom_polluant);
+                graph_labels.push(response[i].nom_periode);
             };            
             
             // -- Titre
-            var graph_title = response[0].tube_nom;
+            var graph_title = response[0].nom_polluant + " (" + response[0].nom_unite + ")";
             
             // -- Données
             var graph_data = [];
@@ -299,31 +301,30 @@ function onClickFeature(e) {
                 graph_data.push(response[i].val);
             };   
             
-             // Object { tube_id: "4", tube_nom: "Quai du Commerce", nom_polluant: "COV", nom_periode: "Eté", val: "0.7" }           
-            
-            var ctx = document.getElementById("myChart");
-            var myChart = new Chart(ctx, {
-                type: 'horizontalBar',          
+            // Graphique
+            var ctx = document.getElementById("graph_no2");
+            var graph_no2 = new Chart(ctx, {
+                type: 'bar', // 'horizontalBar',          
                 data: {
                     labels: graph_labels,
                     datasets: [{
-                        label: 'Polluants mesurés',
+                        label: 'NO2',
                         data: graph_data,
                         backgroundColor: [
-                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)', // Hivert
                             'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)', // Ete
                             'rgba(255, 206, 86, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(153, 102, 255, 0.8)',
-                            'rgba(255, 159, 64, 0.8)'
+                            'rgba(75, 192, 192, 0.8)', // Corrections
+                            'rgba(75, 192, 192, 0.8)'
                         ],
                         borderColor: [
-                            'rgba(255,99,132,1)',
+                            'rgba(54, 162, 235, 1)',
                             'rgba(54, 162, 235, 1)',
                             'rgba(255, 206, 86, 1)',
+                            'rgba(255, 206, 86, 1)',
                             'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
+                            'rgba(255, 250, 85, 1)'
                         ],
                         borderWidth: 1
                     }]
@@ -331,26 +332,114 @@ function onClickFeature(e) {
                 options: {
                     title: {
                         display: true,
-                        fontSize: 30,
+                        fontSize: 20,
                         text: graph_title
                     },
                     legend: {
-                        // display: true,
                         position: 'bottom',
+                        display: false,
                     },
                     scales: {
                         yAxes: [{
                             ticks: {
                                 // beginAtZero:true,
                                 min:0,
-                                // max: 100,
+                                max: 200,
                             }
                         }]
                     }
                 }
             });  
         }
-    });
+    }); // -- Affichage NO2
+
+    
+    // Affichage des valeurs de BTEX
+    // FIXME: Si pas le même nombre de périodes par tubes, le graph sera faux.
+    // FIXME: Le graphique semble disparaitre
+    $.ajax({
+        url: "scripts/query_btex.php",
+        type: 'GET',
+        data : { tube_id: tube.properties.tube_id },
+        dataType: 'json',
+        error: function (request, error) {
+            console.log(arguments);
+            console.log("Ajax error: " + error);
+        },       
+        success: function(response,textStatus,jqXHR){
+            if (typeof response[0] == "undefined") {
+                console.log("Pas de BTEX");
+                return;
+            };
+            // Création de la balise HTML du graphique (Fait avant)      
+            // displayControl.setContent('<canvas id="graph_btex" width="600" height="400"></canvas>');            
+                        
+            // -- Labels
+            var graph_labels = [];
+            for (var i in response) {
+                graph_labels.push(response[i].nom_polluant);
+            };            
+            
+            // -- Titre
+            var graph_title = "BTEX (" + response[0].nom_unite + ")";
+            
+            // -- Données
+            var graph_data = [];
+            for (var i in response) {
+                graph_data.push(response[i].val);
+            };   
+            
+            // Graphique
+            var ctx = document.getElementById("graph_btex");
+            var graph_btex = new Chart(ctx, {
+                type: 'bar', // 'horizontalBar',          
+                data: {
+                    labels: graph_labels,
+                    datasets: [{
+                        label: 'BTEX',
+                        data: graph_data,
+                        backgroundColor: [
+                            'rgba(170, 170, 170, 0.8)', 
+                            'rgba(170, 170, 170, 0.8)', 
+                            'rgba(170, 170, 170, 0.8)', 
+                            'rgba(170, 170, 170, 0.8)', 
+                            'rgba(170, 170, 170, 0.8)', 
+                        ],
+                        borderColor: [
+                            'rgba(170, 170, 170, 1)',
+                            'rgba(170, 170, 170, 1)',
+                            'rgba(170, 170, 170, 1)',
+                            'rgba(170, 170, 170, 1)',
+                            'rgba(170, 170, 170, 1)',
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        fontSize: 20,
+                        text: graph_title
+                    },
+                    legend: {
+                        position: 'bottom',
+                        display: false,
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                // beginAtZero:true,
+                                min:0,
+                                max: 50,
+                            }
+                        }]
+                    }
+                }
+            });  
+        }
+    }); // -- Affichage BTEX    
+    
+    
 };
 
 function onEachFeature(feature, layer) {
@@ -546,6 +635,7 @@ map.addControl(new customControl()); */
 
 
 // Ferme les popups au click sur la carte
+// FIXME: Empêche le click sur le graph si il est dans un contrôle leaflet.
 // map.on('click', function(e) {        
     // displayControl.setContent('');
     // console.log("TTTTTTTTTTTTTT");
