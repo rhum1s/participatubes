@@ -181,7 +181,7 @@ function bootstrap_tubes(){
 };
 
 function creation_icones() {
-    var icon1 = L.icon({
+    var icon = L.icon({
         iconUrl: 'icons/marker-icon.png',
         shadowUrl: 'icons/marker-shadow.png',
         // iconSize:     [24, 38], // size of the icon
@@ -191,8 +191,8 @@ function creation_icones() {
         popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
     });
     
-    var icon2 = L.icon({
-        iconUrl: 'icons/marker-icon-test.png',
+    var icon_trafic = L.icon({
+        iconUrl: 'icons/marker-icon-trafic.png',
         shadowUrl: 'icons/marker-shadow.png',
         // iconSize:     [24, 38], // size of the icon
         // shadowSize:   [50, 64], // size of the shadow
@@ -200,10 +200,43 @@ function creation_icones() {
         shadowAnchor: [13.5, 41],  // the same for the shadow
         popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
     });    
+
+    var icon_urbain = L.icon({
+        iconUrl: 'icons/marker-icon-urbain.png',
+        shadowUrl: 'icons/marker-shadow.png',
+        // iconSize:     [24, 38], // size of the icon
+        // shadowSize:   [50, 64], // size of the shadow
+        iconAnchor:   [12.5, 41], // point of the icon which will correspond to marker's location
+        shadowAnchor: [13.5, 41],  // the same for the shadow
+        popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
+    });  
+    
+    var icon_rural = L.icon({
+        iconUrl: 'icons/marker-icon-rural.png',
+        shadowUrl: 'icons/marker-shadow.png',
+        // iconSize:     [24, 38], // size of the icon
+        // shadowSize:   [50, 64], // size of the shadow
+        iconAnchor:   [12.5, 41], // point of the icon which will correspond to marker's location
+        shadowAnchor: [13.5, 41],  // the same for the shadow
+        popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
+    });  
+    
+    var icon_proximite = L.icon({
+        iconUrl: 'icons/marker-icon-proximite.png',
+        shadowUrl: 'icons/marker-shadow.png',
+        // iconSize:     [24, 38], // size of the icon
+        // shadowSize:   [50, 64], // size of the shadow
+        iconAnchor:   [12.5, 41], // point of the icon which will correspond to marker's location
+        shadowAnchor: [13.5, 41],  // the same for the shadow
+        popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
+    });  
     
     return {
-        icon1: icon1,
-        icon2: icon2
+        icon: icon,
+        icon_trafic: icon_trafic,
+        icon_urbain: icon_urbain,
+        icon_rural: icon_rural,
+        icon_proximite: icon_proximite
     };
     
 };
@@ -239,14 +272,17 @@ function onClickFeature(e) {
         data : { tube_id: tube.properties.tube_id },
         dataType: 'json',
         success: function(response,textStatus,jqXHR){
-            console.log(response); 
-            console.log("----");
+            // console.log(response); 
+            // console.log("----");
             // displayControl.setContent(response[0].tube_nom);
             content = "" + response[0].tube_nom + ": " + response[0].val;
             // displayControl.setContent(content);
             
             // Affiche les données récupérées          
             displayControl.setContent('<canvas id="myChart" width="600" height="400"></canvas>');            
+            
+            // Récupérer le NO2 et les BTEX et faire plusieurs datasets
+            
             
             // -- Labels
             var graph_labels = [];
@@ -307,7 +343,7 @@ function onClickFeature(e) {
                             ticks: {
                                 // beginAtZero:true,
                                 min:0,
-                                max: 100,
+                                // max: 100,
                             }
                         }]
                     }
@@ -324,16 +360,22 @@ function onEachFeature(feature, layer) {
         click: onClickFeature
     });
  
-    var popupcontent = [];
-    for (var prop in feature.properties) {
-        if (prop == "tube_image") {
-            popupcontent.push("<img src='data:image/png;base64, " + feature.properties[prop] + "' />");
-        } else {
-            popupcontent.push(prop + ": " + feature.properties[prop]);
-        };
-    }
-    layer.bindPopup(popupcontent.join("<br />"));      
-    
+    // var popupcontent = [];
+    // for (var prop in feature.properties) {
+        // if (prop == "tube_image") {
+            // popupcontent.push("<img src='data:image/png;base64, " + feature.properties[prop] + "' />");
+        // } else {
+            // popupcontent.push(prop + ": " + feature.properties[prop]);
+        // };
+    // }
+    // layer.bindPopup(popupcontent.join("<br />"));      
+ 
+    var popupcontent = "<h4>" + feature.properties["tube_id"] + " - " + feature.properties["tube_nom"] + "</h4><br/>";
+    popupcontent += "<p><b>Typologie: </b>" + feature.properties["typo_nom"] + "<br/>";
+    popupcontent += "<b>Commune: </b>" + feature.properties["tube_ville"] + "</p><br/>";
+    popupcontent += "<img src='data:image/png;base64, " + feature.properties["tube_image"] + "'/>";
+    layer.bindPopup(popupcontent);      
+ 
 }; 
 
 function loadGeoJson_tubes(data) {
@@ -347,12 +389,16 @@ function loadGeoJson_tubes(data) {
         onEachFeature: onEachFeature,
         /* FIXME: Bug dans l'emplacement des markeurs spéciaux" */
         pointToLayer: function (geojson, latlng) {        
-            if (geojson.properties['type_id'] == 2) {
-                return L.marker(latlng, {icon: icones.icon1});                    
-            } else if (geojson.properties['type_id'] == 1) {
-                return L.marker(latlng, {icon: icones.icon2});
+            if (geojson.properties['typo_id'] == 1) {
+                return L.marker(latlng, {icon: icones.icon_trafic});                    
+            } else if (geojson.properties['typo_id'] == 2) {
+                return L.marker(latlng, {icon: icones.icon_urbain});
+            } else if (geojson.properties['typo_id'] == 3) {
+                return L.marker(latlng, {icon: icones.icon_rural});
+            } else if (geojson.properties['typo_id'] == 4) {
+                return L.marker(latlng, {icon: icones.icon_proximite});                
             } else {
-                return L.marker(latlng, {icon: icones.icon1});
+                return L.marker(latlng, {icon: icones.icon});
             };
         }, 
     });
@@ -499,8 +545,11 @@ var customControl =  L.Control.extend({
 map.addControl(new customControl()); */
 
 
-
-
+// Ferme les popups au click sur la carte
+// map.on('click', function(e) {        
+    // displayControl.setContent('');
+    // console.log("TTTTTTTTTTTTTT");
+// });
 
 
 

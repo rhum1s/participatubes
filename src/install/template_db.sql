@@ -70,34 +70,36 @@ INSERT INTO c_template.info VALUES (5, 'Image principale', 'Tubes en fleurs', (s
 /** FIXME: How to know image directory? */
 
 /* Table des types de tubes */
-drop table if exists c_template.tubes_types;
-create table c_template.tubes_types (
-	type_id integer not null,
-	type_nom character varying (20) not null,
-	type_description text not null,
-	constraint "pk__c_template.tubes_types" primary key (type_id)
+drop table if exists c_template.tubes_typos;
+create table c_template.tubes_typos (
+	typo_id integer not null,
+	typo_nom character varying (20) not null,
+	typo_description text not null,
+	constraint "pk__c_template.tubes_typos" primary key (typo_id)
 );
-comment on table c_template.tubes_types is '
-Types de tubes utilisés pour évaluer la qualité de l''air.
+comment on table c_template.tubes_typos is '
+Typologie des sites de mesure.
 ';
 
-INSERT INTO c_template.tubes_types VALUES (1, 'Tube BTEX', 'Diffusion passive, mesure des COV');
-INSERT INTO c_template.tubes_types VALUES (2, 'Tube NO/NO2', 'Mesure le monoxyde et dioxyde d''azote');
-INSERT INTO c_template.tubes_types VALUES (3, 'Moyen mobile', 'Multiples instruments de mesure');
+INSERT INTO c_template.tubes_typos VALUES (1, 'T', 'Trafic');
+INSERT INTO c_template.tubes_typos VALUES (2, 'U', 'Urbain');
+INSERT INTO c_template.tubes_typos VALUES (3, 'R', 'Rural');
+INSERT INTO c_template.tubes_typos VALUES (4, 'P', 'Proximité');
 
 /* Table des tubes */
 drop table if exists c_template.tubes;
 create table c_template.tubes (
 	tube_id integer not null,
 	tube_nom text not null,
-	type_id integer not null,
+	tube_ville text not null,
+	typo_id integer not null,
 	tube_validite boolean default true not null,
 	tube_validite_desc text default null,
 	tube_z double precision default 0 not null,
 	tube_image BYTEA default null,
 	constraint "pk__c_template.tubes" primary key (tube_id),
-	constraint "fk__c_template.tubes_types.type_id" foreign key (type_id)
-		references c_template.tubes_types (type_id) ON UPDATE CASCADE ON DELETE RESTRICT
+	constraint "fk__c_template.tubes_typo.typo_id" foreign key (typo_id)
+		references c_template.tubes_typos (typo_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 SELECT AddGeometryColumn ('c_template', 'tubes', 'geom', 2154, 'POINT', 2);
 comment on table c_template.tubes is '
@@ -105,31 +107,41 @@ Localisation et description des tubes de la campagne.
 Géométrie 2D pour insertion avec QGIS.
 ';
 
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045819.7984035350382328 6297619.06036414951086044)', 2154), 1, 'Moyen Mobile', 3);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045641.40435367764439434 6297333.30708020552992821)', 2154), 2, 'Jetée', 2);	
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045350.81415711343288422 6297572.96848930511623621)', 2154), 3, 'Quai Infernet', 2);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045670.80242651840671897 6297703.10551058128476143)', 2154), 4, 'Quai du Commerce', 2);	
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045469.52082435134798288 6297730.92193152941763401)', 2154), 5, 'Quai d''Entrecasteaux', 2);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045414.83913829573430121 6298184.20440549682825804)', 2154), 6, 'Quai des Docks', 2);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045223.25263328326400369 6298066.34363152831792831)', 2154), 7, 'Quai Papacino', 2);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id, tube_image) values (ST_GeomFromText('POINT(1045427.66299690015148371 6298598.84841374401003122)', 2154), 8, 'Station Arson', 2,	(select fonctions.bytea_import('::RACINE::/images/c_template.station_demo.jpg'))    );	
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045724.19487572065554559 6297794.09171523433178663)', 2154), 9, 'Alicante', 2);	
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045751.73748290026560426 6297742.7397505035623908)', 2154), 10, 'Vigier 4° etg.', 1);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045680.75360146816819906 6297747.68823713250458241)', 2154), 11, 'Pilatte 1 etg.', 1);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045426.15593694767449051 6297878.30503234919160604)', 2154), 12, 'Quai des 2 Emmanuels 4° etg.', 1);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045521.35493409517221153 6298175.90026730950921774)', 2154), 13, 'Stalingrad 1° etg.', 1);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045396.09681344067212194 6298431.55758886970579624)', 2154), 14, 'Bonapart 5° etg.', 1);
-insert into c_template.tubes (geom, tube_id, tube_nom, type_id) values (ST_GeomFromText('POINT(1045183.63386900536715984 6297754.15038110595196486)', 2154), 15, 'Quai Lunel 1 etg.', 1);
+create temporary table tubes_tmp (
+	id integer not null,
+	typo text not null,
+	nom text not null,
+	ville text not null,
+	x double precision,
+	y double precision
+);
+copy tubes_tmp 
+from '::RACINE::/documents/tubes.csv'
+with delimiter as ',' null as '' csv header;
+
+INSERT INTO c_template.tubes
+SELECT 
+	id,
+	nom,
+	ville,
+	(select typo_id from c_template.tubes_typos WHERE typo_nom = typo),
+	true,
+	null,
+	0,
+	(select fonctions.bytea_import('::RACINE::/images/c_template.station_demo.jpg')),
+	(select ST_SetSRID(ST_MakePoint(x, y), 2154))
+From tubes_tmp;
 
 /* Vue des tubes avec image encodée */  
 drop view if exists c_template.tubes_mef;
 create view c_template.tubes_mef as 
 select 
-	tube_id, tube_nom, type_id, 
+	tube_id, tube_nom, tube_ville, typo_id, typo_nom, 
 	tube_validite, tube_validite_desc, tube_z,
 	encode(tube_image, 'base64') AS tube_image, 
 	geom
-from c_template.tubes;
+from c_template.tubes as a
+left join c_template.tubes_typos as b using (typo_id);
 
 /* Table des polluants mesurés */
 DROP table if exists c_template.polluants;
@@ -143,8 +155,12 @@ comment on table c_template.polluants is '
 Polluants mesurés.
 ';
 
-insert into c_template.polluants values (1, 'NO2', 'Dioxydes d''azote');
-insert into c_template.polluants values (2, 'COV', 'Composés organiques volatiles');
+insert into c_template.polluants values (1, 'NO2', '(µg/m3)');
+insert into c_template.polluants values (2, 'Benzène', '(µg/m3)');
+insert into c_template.polluants values (3, 'Toluène', '(µg/m3)');
+insert into c_template.polluants values (4, 'Ethylbenzène', '(µg/m3)');
+insert into c_template.polluants values (5, 'm+p-xylène', '(µg/m3)');
+insert into c_template.polluants values (6, 'o-xylène', '(µg/m3)');
 
 /* Table des unités */
 DROP table if exists c_template.unites;
@@ -174,6 +190,8 @@ Par défaut été et hivert mais d''autres périodes peuvent-être rajoutées.
 
 insert into c_template.mesures_periodes values (1, 'Hivert', 'Du 1er août 2013 au 7 janvier 2014');
 insert into c_template.mesures_periodes values (2, 'Eté', 'Du 11 juillet au 8 août 2014');
+insert into c_template.mesures_periodes values (3, 'Correction partielle', '');
+insert into c_template.mesures_periodes values (4, 'Correction complète', '');
 
 /* Table des mesures tubes */
 DROP table if exists c_template.mesures;
@@ -181,6 +199,7 @@ create table c_template.mesures (
 	id_polluant integer not null,
 	tube_id integer not null,
 	id_periode integer not null,
+	id_unite integer not null,
 	val double precision default null,
 	val_corrigee double precision default null,
 	constraint "pk__c_template.mesures" primary key (id_polluant, tube_id, id_periode),
@@ -189,36 +208,21 @@ create table c_template.mesures (
 	constraint "fk__c_template.mesures_tube_id" foreign key (tube_id) 
 		references c_template.tubes (tube_id) on update cascade on delete restrict,
 	constraint "fk__c_template.mesures_id_periode" foreign key (id_periode) 
-		references c_template.mesures_periodes (id_periode) on update cascade on delete restrict
+		references c_template.mesures_periodes (id_periode) on update cascade on delete restrict,
+	constraint "fk__c_template.mesures_id_unite" foreign key (id_unite) 
+		references c_template.unites (id_unite) on update cascade on delete restrict		
 );
 COMMENT ON table c_template.mesures is '
 Mesures des tubes.
 ';
 
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 13, 2, 72.6);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 7, 2, 68.5);
-/** INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, , 2, 62.4); */
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 15, 2, 53.5);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 6, 2, 47.2);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 14, 2, 42.1);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 4, 2, 41.0);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 3, 2, 41.0);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 5, 2, 39.7);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 12, 2, 39.4);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 8, 2, 39.4);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 2, 2, 35.2);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 11, 2, 34.7);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (1, 10, 2, 28.8);
+copy c_template.mesures 
+from '::RACINE::/documents/mes_no2.csv'
+with delimiter as ',' null as '' csv header;
 
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (2, 13, 2, 1.6);
-/** INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (2, , 2, 1.6); */
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (2, 6, 2, 1.2);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (2, 15, 2, 1.1);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (2, 14, 2, 0.9);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (2, 8, 2, 0.7);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (2, 4, 2, 0.7);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (2, 3, 2, 0.5);
-INSERT INTO c_template.mesures (id_polluant, tube_id, id_periode, val) VALUES (2, 2, 2, 0.4);
+copy c_template.mesures 
+from '::RACINE::/documents/mes_btex.csv'
+with delimiter as ',' null as '' csv header;
 
 /* Création de la table des rendus */
 DROP table if exists c_template.rendus;
