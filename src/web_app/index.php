@@ -27,6 +27,10 @@
     <link rel="stylesheet" href="libs/easy_button/easy-button.css" />
     <script type="text/javascript" src="libs/easy_button/easy-button.js"></script>
 
+    <!-- Leaflet.BoxZoom -->
+    <script src="libs/L.Control.BoxZoom-master/dist/leaflet-control-boxzoom.js"></script>
+    <link rel="stylesheet" href="libs/L.Control.BoxZoom-master/dist/leaflet-control-boxzoom.css" />    
+    
     <!-- IonIcons -->
     <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
@@ -256,8 +260,25 @@ function onClickFeature(e) {
     console.log("User clicked feature");
 
     /* Zoom sur le tube */
-    // map.setView(e.latlng, 13);
-   
+    map.setView(e.latlng); // Pour changer le zoom: ", 13"
+   // map.panBy([50, 0]);
+    // e.latlng.lng = e.latlng.lng - 0.05;
+    // console.log(e.latlng);
+     // { lat: 43.63807252700572, lng: 7.046221119945698 }
+    // map.setView({lat: e.latlng.lat, lng: e.latlng.lng}, 13);   
+   // console.log(map.getBounds());
+
+    /* Déplacement vers la gauche pour les contrôles */
+    // var center = map.project(e.latlng);
+    // center = new L.point(center.x+500,center.y+0);
+    // var target = map.unproject(center);
+    // map.panTo(target);
+
+
+    // map.panBy([400 / 2, 0], {
+        // duration: 0.5
+    // });
+
     /* Informations du tube */
     // console.log(this._popup._source);
     tube = this._popup._source.feature;   
@@ -266,7 +287,8 @@ function onClickFeature(e) {
     
     
     // Prépare le display control
-    displayControl.setContent('<h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="250"></canvas>');            
+    // FIXME: Si pas de BTEX ne pas afficher le canvas BTEX
+    displayControl.setContent('<h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="350"></canvas>');            
     
     // Affichage des valeurs de NO2
     // FIXME: Si pas le même nombre de périodes par tubes, le graph sera faux.
@@ -439,7 +461,9 @@ function onClickFeature(e) {
         }
     }); // -- Affichage BTEX    
     
-    
+   
+
+   
 };
 
 function onEachFeature(feature, layer) {
@@ -459,8 +483,9 @@ function onEachFeature(feature, layer) {
     // }
     // layer.bindPopup(popupcontent.join("<br />"));      
  
-    var popupcontent = "<h4>" + feature.properties["tube_id"] + " - " + feature.properties["tube_nom"] + "</h4><br/>";
-    popupcontent += "<p><b>Typologie: </b>" + feature.properties["typo_nom"] + "<br/>";
+    var popupcontent = "<h4>" + feature.properties["tube_nom"] + "</h4>";
+    popupcontent += "<p><b>Identifiant: </b>" + feature.properties["tube_id"] + "<br/>";
+    popupcontent += "<b>Typologie: </b>" + feature.properties["typo_nom"] + "<br/>";
     popupcontent += "<b>Commune: </b>" + feature.properties["tube_ville"] + "</p><br/>";
     popupcontent += "<img src='data:image/png;base64, " + feature.properties["tube_image"] + "'/>";
     layer.bindPopup(popupcontent);      
@@ -497,7 +522,7 @@ function loadGeoJson_tubes(data) {
 	// Zoom sur les tubes	
     zoom_to_layer(geojsonLayer);
 			
-    // layerControl.addOverlay(geojsonLayer, "Sites de mesures"); // Add layer to layer switcher
+    layerControl.addOverlay(geojsonLayer, "Emplacements des mesures"); // Add layer to layer switcher
 }; 
  
 /* Création des icones */
@@ -543,6 +568,7 @@ var displayControl = L.Control.extend({
         return L.DomUtil.create('div', 'my-display-control');
     },
     setContent: function (content) {
+    
         this.getContainer().innerHTML = content;
     }
 });
@@ -640,6 +666,18 @@ map.addControl(new customControl()); */
     // displayControl.setContent('');
     // console.log("TTTTTTTTTTTTTT");
 // });
+
+
+
+var baseLayers = {
+"Fonde de carte: MapBox Light": mapbox_light,
+// "Mapbox.light": base_layer2
+};
+var layerControl = L.control.layers(baseLayers, null, {collapsed: false, position:"bottomleft"});
+map.addControl(layerControl); 
+
+
+L.Control.boxzoom({ position:'topleft' }).addTo(map);
 
 
 
