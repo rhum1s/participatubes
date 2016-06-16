@@ -240,7 +240,7 @@ function onClickFeature(e) {
     $.ajax({
         url: "scripts/query_tubes.php",
         type: 'GET',
-        data : { tube_id: tube.properties.tube_id },
+        data : { tube_id: tube.properties.tube_id, user: user },
         dataType: 'json',
         error: function (request, error) {
             console.log(arguments);
@@ -448,6 +448,9 @@ function loadGeoJson_tubes(data) {
     /* Ajoute la couche au contrôleur de couches */
     layerControl.addOverlay(tubes_layer, "Points des mesures");
 }; 
+
+/* Variable utilisateur (Chargera fichiers de cfg différents) */ 
+var user = "lambda";
  
 /* Création des icones */
 var icones = creation_icones();

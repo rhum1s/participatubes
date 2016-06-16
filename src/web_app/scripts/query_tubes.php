@@ -1,10 +1,15 @@
 <?php 
 
-/* Chargement du fichier de config */
-include 'config.php';
-
 /* Récupération de variables */
 $tube_id = $_GET['tube_id'];
+$user = $_GET['user'];
+
+/* Chargement du fichier de config en fonction de l'utilisateur */
+if ($user == "admin") {
+    include 'config_su.php';
+} else {
+    include 'config.php';
+}
 
 /* Connexion à PostgreSQL */
 $conn = pg_connect("dbname='" . $pg_db . "' user='" . $pg_lgn . "' password='" . $pg_pwd . "' host='" . $pg_host . "'");
