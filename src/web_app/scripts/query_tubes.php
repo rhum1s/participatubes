@@ -1,36 +1,43 @@
 <?php 
 
+/* Chargement du fichier de config */
 include 'config.php';
 
+/* Récupération de variables */
 $tube_id = $_GET['tube_id'];
 
-# Connexion à PostgreSQL
+/* Connexion à PostgreSQL */
 $conn = pg_connect("dbname='" . $pg_db . "' user='" . $pg_lgn . "' password='" . $pg_pwd . "' host='" . $pg_host . "'");
 if (!$conn) {
     echo "Not connected";
     exit;
 }
 
-// $sql = "select * from c_template.tubes where tube_id = " . $tube_id . ";";
-// $sql = "
-// select 
-	// tube_id, 
-	// tube_nom,
-	// -- id_polluant, 
-	// nom_polluant,
-	// -- id_periode, 
-	// nom_periode, 
-	// -- description_periode, 
-	// val -- , 
-	// -- val_corrigee
-// from c_template.mesures as a
-// left join c_template.mesures_periodes as b using (id_periode)
-// left join c_template.polluants as c using (id_polluant)
-// left join c_template.tubes as d using (tube_id)
-// where tube_id = " . $tube_id . "
-// order by tube_id, id_polluant, id_periode;
-// ";
+/* [0] Sélection du nombre de polluants mesurés par le tube */
+$sql = "
+/** 
+Combien de polluants sont mesurés
+*/
+select count(*) as nb_poll
+from (
+    select distinct id_polluant
+    from c_template.mesures
+    where tube_id = " . $tube_id . "
+) as a;
+";
 
+$res = pg_query($conn, $sql);
+if (!$res) {
+    echo "An SQL error occured.\n";
+    exit;
+}
+
+$array_nb_poll = array();
+while ($row = pg_fetch_assoc( $res )) {
+  $array_nb_poll[] = $row;
+}
+
+/* [1] Mesures de NO2 */
 $sql = "
 /** 
 Récupération des valeurs NO2 pour un tube 
@@ -83,6 +90,32 @@ order by id_polluant, tube_id, id_periode
 ;
 ";
 
+$res = pg_query($conn, $sql);
+if (!$res) {
+    echo "An SQL error occured.\n";
+    exit;
+}
+
+$array_no2 = array();
+while ($row = pg_fetch_assoc( $res )) {
+  $array_no2[] = $row;
+}
+
+/* [2] Mesures BTEX */
+$sql = "
+select 
+	id_polluant, nom_polluant, tube_id, tube_nom, id_periode, nom_periode, 
+	id_unite, nom_unite, val, val_corrigee
+from c_template.mesures as a
+left join c_template.polluants as b using (id_polluant)
+left join c_template.tubes as c using (tube_id)
+left join c_template.mesures_periodes as d using (id_periode)
+left join c_template.unites as e using (id_unite)
+where 
+	tube_id = " . $tube_id . "
+	and id_polluant in (2,3,4,5,6)
+order by id_polluant, tube_id, id_periode;
+";
 
 $res = pg_query($conn, $sql);
 if (!$res) {
@@ -90,11 +123,20 @@ if (!$res) {
     exit;
 }
 
-$myarray = array();
-while ($row = pg_fetch_assoc( $res )/*pg_fetch_row($contests)*/) {
-  $myarray[] = $row;
+$array_btex = array();
+while ($row = pg_fetch_assoc( $res )) {
+  $array_btex[] = $row;
 }
+
+/* Stockage des résultats */
+$array_result = array(
+    $array_nb_poll,
+    $array_no2,
+    $array_btex,
+);
+
+/* Export en JSON */
 header('Content-Type: application/json');
-echo json_encode($myarray);
+echo json_encode($array_result);
 
 ?>

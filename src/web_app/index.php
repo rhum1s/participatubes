@@ -41,7 +41,6 @@
     <!-- Scripts -->
     <script type="text/javascript" src="libs/geostats-master/lib/geostats.min.js"></script>
     <script type="text/javascript" src="libs/chroma.js-master/chroma.min.js"></script>
-    <script type="text/javascript" src="scripts/jenks.js"></script></script>
     
 </head>
 
@@ -50,189 +49,158 @@
 ------------------------------------------------------------------------------->
 <body>
 
+<!-- Bootstrap -->
 <!-- https://getbootstrap.com/components/#navbar -->
 <!-- http://getbootstrap.com/javascript/ -->
 <nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
+    <div class="container-fluid">
     
-      <a class="navbar-brand" href="#">
-        <img alt="Brand" src="icons/marker-icon.png">
-      </a>    
-    
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <?php include 'scripts/header-bootstrap-title.php';?>
-      <!-- <a class="navbar-brand" href="#">Brandvvv</a> -->
-    </div>
+        <!-- Bootstrap - Header -->
+        <div class="navbar-header">
+        
+            <!-- Image de la campagne -->
+            <a class="navbar-brand" href="#">           
+                <img alt="Brand" src="icons/marker-icon.png">
+            </a>    
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
- 
-        <div class="btn-group" role="group" aria-label="...">
-            <button type="button" class="btn btn-default navbar-btn" onclick="bootstrap_home();">
-                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
             </button>
-
-            <button type="button" class="btn btn-default navbar-btn" onclick="bootstrap_tubes();">
-                <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
-            </button>        
-        </div> 
-
-        
-        
-        
-        <!-- <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li> -->
-        <!-- <li><a href="#">Link</a></li> -->
-        <!-- <li class="dropdown"> -->
-        <!--   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a> -->
-        <!--   <ul class="dropdown-menu"> -->
-        <!--     <li><a href="#">Action</a></li> -->
-        <!--     <li><a href="#">Another action</a></li> -->
-        <!--     <li><a href="#">Something else here</a></li> -->
-        <!--     <li role="separator" class="divider"></li> -->
-        <!--     <li><a href="#">Separated link</a></li> -->
-        <!--     <li role="separator" class="divider"></li> -->
-        <!--     <li><a href="#">One more separated link</a></li> -->
-        <!--   </ul> -->
-        <!-- </li> -->  
-        
-      </ul>
-      <form class="navbar-form navbar-left" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Mon tube">
+            
+            <!-- Titre de la campagne (dynamique) -->
+            <?php include 'scripts/header-bootstrap-title.php';?>
         </div>
-        <button type="submit" class="btn btn-default">Recherche</button>
-      </form>
 
-      
-    <!-- Bouton Modal de connexion --> 
-    <ul class="nav navbar-nav navbar-right" data-toggle="modal" data-target="#myModal">
-    <li><a href="#">Connexion</a></li>
-    </ul>
+        <!-- Bootstrap - Boutons du Header -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <!-- Bouton home -->
+                <div class="btn-group" role="group" aria-label="...">
+                    <button type="button" class="btn btn-default navbar-btn" onclick="bootstrap_home();">
+                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                    </button>
+                    <!-- Bouton tubes -->
+                    <button type="button" class="btn btn-default navbar-btn" onclick="bootstrap_tubes();">
+                        <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
+                    </button>        
+                </div> 
+            </ul>
+            
+            <!-- Formulaire de recherche -->
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Mon tube">
+                </div>
+                <button type="submit" class="btn btn-default">Recherche</button>
+            </form>
 
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel">Identification administrateur</h4>
-          </div>
-          <div class="modal-body">
-            ...
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-            <button type="button" class="btn btn-primary">Connexion</button>
-          </div>
-        </div>
-      </div>
-    </div>      
+            <!-- Bouton Modal de connexion --> 
+            <ul class="nav navbar-nav navbar-right" data-toggle="modal" data-target="#myModal">
+                <li><a href="#">Connexion</a></li>
+            </ul>
 
-    <!-- Bouton Modal d'affichage --> 
-    <ul class="nav navbar-nav navbar-right" data-toggle="modal" data-target="#Modal_affichage"></ul>
-
-    <div class="modal" id="Modal_affichage" tabindex="-1" role="dialog" aria-labelledby="Modal_affichage">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="Modal_affichage">[identifiant] - [nom]</h4>
-          </div>
-          <div class="modal-body-affichage">
-            [AFFICHER LES DONNEES ICI.]
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Quitter</button>
-            <button type="button" class="btn btn-primary">Afficher tout</button>
-          </div>
-        </div>
-      </div>
-    </div>  
-
-
-
-
-    
-    </div><!-- /.navbar-collapse -->
-
+            <!-- Bouton Modal d'identification -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Identification administrateur</h4>
+                        </div>
+                        <div class="modal-body">
+                            ...
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                            <button type="button" class="btn btn-primary">Connexion</button>
+                        </div>
+                    </div>
+                </div>
+            </div>      
+            
+        </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
 </nav>
-<!-- 
-<div class="container fill">
-     <div id="map"></div> 
- </div> 
- -->
+
+<!-- Carte Leaflet -->
 <div id="map"></div> 
 
+<!-- Image "En développement" 
+<a href="#"><img style="position: fixed; top: 0; right: 0; border: 0;" src="icons/developpement.png" alt="Version de développement"></a>
+-->
 
 <!------------------------------------------------------------------------------ 
                                     Map script
 ------------------------------------------------------------------------------->
 <script type="text/javascript">
 function bootstrap_home(){
-    zoom_to_layer(geojsonLayer);
+    zoom_to_layer(tubes_layer);
 };
 
 function bootstrap_tubes(){
-    map.removeLayer(geojsonLayer);
+    map.removeLayer(tubes_layer);
+};
+
+function bootstrap_close_display() {
+    displayControl.setContent('');
 };
 
 function creation_icones() {
+    /*
+    Penser que le point de référence des icones
+    est en haut à gauche.
+
+    Exemple d'utilisation: 
+    " 
+    var icones = creation_icones();
+    console.log(icones.icon_trafic);
+    "
+    
+    Autres options:
+    iconSize: [24, 38], // size of the icon
+    shadowSize: [50, 64], // size of the shadow
+    */
     var icon = L.icon({
         iconUrl: 'icons/marker-icon.png',
         shadowUrl: 'icons/marker-shadow.png',
-        // iconSize:     [24, 38], // size of the icon
-        // shadowSize:   [50, 64], // size of the shadow
-        iconAnchor:   [12.5, 41], // point of the icon which will correspond to marker's location
-        shadowAnchor: [13.5, 41],  // the same for the shadow
-        popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
+        iconAnchor:   [12.5, 41], 
+        shadowAnchor: [13.5, 41],
+        popupAnchor:  [0, -41]
     });
     
     var icon_trafic = L.icon({
         iconUrl: 'icons/marker-icon-trafic.png',
         shadowUrl: 'icons/marker-shadow.png',
-        // iconSize:     [24, 38], // size of the icon
-        // shadowSize:   [50, 64], // size of the shadow
-        iconAnchor:   [12.5, 41], // point of the icon which will correspond to marker's location
-        shadowAnchor: [13.5, 41],  // the same for the shadow
-        popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
+        iconAnchor:   [12.5, 41], 
+        shadowAnchor: [13.5, 41],
+        popupAnchor:  [0, -41]
     });    
 
     var icon_urbain = L.icon({
         iconUrl: 'icons/marker-icon-urbain.png',
         shadowUrl: 'icons/marker-shadow.png',
-        // iconSize:     [24, 38], // size of the icon
-        // shadowSize:   [50, 64], // size of the shadow
-        iconAnchor:   [12.5, 41], // point of the icon which will correspond to marker's location
-        shadowAnchor: [13.5, 41],  // the same for the shadow
-        popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
+        iconAnchor:   [12.5, 41],
+        shadowAnchor: [13.5, 41],
+        popupAnchor:  [0, -41]
     });  
     
     var icon_rural = L.icon({
         iconUrl: 'icons/marker-icon-rural.png',
         shadowUrl: 'icons/marker-shadow.png',
-        // iconSize:     [24, 38], // size of the icon
-        // shadowSize:   [50, 64], // size of the shadow
-        iconAnchor:   [12.5, 41], // point of the icon which will correspond to marker's location
-        shadowAnchor: [13.5, 41],  // the same for the shadow
-        popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
+        iconAnchor:   [12.5, 41],
+        shadowAnchor: [13.5, 41],
+        popupAnchor:  [0, -41]
     });  
     
     var icon_proximite = L.icon({
         iconUrl: 'icons/marker-icon-proximite.png',
         shadowUrl: 'icons/marker-shadow.png',
-        // iconSize:     [24, 38], // size of the icon
-        // shadowSize:   [50, 64], // size of the shadow
-        iconAnchor:   [12.5, 41], // point of the icon which will correspond to marker's location
-        shadowAnchor: [13.5, 41],  // the same for the shadow
-        popupAnchor:  [0, -41] // point from which the popup should open relative to the iconAnchor
+        iconAnchor:   [12.5, 41],
+        shadowAnchor: [13.5, 41],
+        popupAnchor:  [0, -41]
     });  
     
     return {
@@ -251,49 +219,26 @@ function zoom_to_layer(layer) {
     */
 	var southWest = layer.getBounds().getSouthWest();
 	var northEast = layer.getBounds().getNorthEast();
-    console.log(southWest, northEast);
 	var bounds = new L.LatLngBounds(southWest, northEast);
-    map.fitBounds(bounds, {padding: [0, 40]});
+    map.fitBounds(bounds, {padding: [0, 0]});
 };   
-   
+     
 function onClickFeature(e) {
-    console.log("User clicked feature");
+    /*
+    NOTE: Pour décaler la vue après le zoom: 
+    "
+    map.panBy([50, 0], {duration: 0.5});
+    "
+    */
 
-    /* Zoom sur le tube */
+    /* Zoom sur l'élément */
     map.setView(e.latlng); // Pour changer le zoom: ", 13"
-   // map.panBy([50, 0]);
-    // e.latlng.lng = e.latlng.lng - 0.05;
-    // console.log(e.latlng);
-     // { lat: 43.63807252700572, lng: 7.046221119945698 }
-    // map.setView({lat: e.latlng.lat, lng: e.latlng.lng}, 13);   
-   // console.log(map.getBounds());
 
-    /* Déplacement vers la gauche pour les contrôles */
-    // var center = map.project(e.latlng);
-    // center = new L.point(center.x+500,center.y+0);
-    // var target = map.unproject(center);
-    // map.panTo(target);
-
-
-    // map.panBy([400 / 2, 0], {
-        // duration: 0.5
-    // });
-
-    /* Informations du tube */
-    // console.log(this._popup._source);
-    tube = this._popup._source.feature;   
-    tube_lat = this._popup._source._latlng.lat;
-    tube_lng = this._popup._source._latlng.lng;
-    
-    
-    // Prépare le display control
-    // FIXME: Si pas de BTEX ne pas afficher le canvas BTEX
-    displayControl.setContent('<h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="350"></canvas>');            
-    
-    // Affichage des valeurs de NO2
-    // FIXME: Si pas le même nombre de périodes par tubes, le graph sera faux.
+    /* Récupération des informations du tube */
+    tube = this._popup._source.feature;       
+   
     $.ajax({
-        url: "scripts/query_no2.php",
+        url: "scripts/query_tubes.php",
         type: 'GET',
         data : { tube_id: tube.properties.tube_id },
         dataType: 'json',
@@ -302,206 +247,183 @@ function onClickFeature(e) {
             console.log("Ajax error: " + error);
         },       
         success: function(response,textStatus,jqXHR){
-           
-            // Création des balises HTML du graphique          
-            // displayControl.setContent('<div><canvas id="graph_no2" width="600" height="350"></canvas></div><div><canvas id="graph_btex" width="600" height="350"></canvas></div>');            
-            // displayControl.setContent('<canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="250"></canvas>');            
-            // displayControl.setContent('<canvas id="graph_no2" width="600" height="350"></canvas>');            
-                        
-            // -- Labels
-            var graph_labels = [];
-            for (var i in response) {
-                graph_labels.push(response[i].nom_periode);
-            };            
             
-            // -- Titre
-            var graph_title = response[0].nom_polluant + " (" + response[0].nom_unite + ")";
-            
-            // -- Données
-            var graph_data = [];
-            for (var i in response) {
-                graph_data.push(response[i].val);
-            };   
-            
-            // Graphique
-            var ctx = document.getElementById("graph_no2");
-            var graph_no2 = new Chart(ctx, {
-                type: 'bar', // 'horizontalBar',          
-                data: {
-                    labels: graph_labels,
-                    datasets: [{
-                        label: 'NO2',
-                        data: graph_data,
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.8)', // Hivert
-                            'rgba(54, 162, 235, 0.8)',
-                            'rgba(255, 206, 86, 0.8)', // Ete
-                            'rgba(255, 206, 86, 0.8)',
-                            'rgba(75, 192, 192, 0.8)', // Corrections
-                            'rgba(75, 192, 192, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 250, 85, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        fontSize: 20,
-                        text: graph_title
-                    },
-                    legend: {
-                        position: 'bottom',
-                        display: false,
-                    },
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                // beginAtZero:true,
-                                min:0,
-                                max: 200,
-                            }
-                        }]
-                    }
-                }
-            });  
-        }
-    }); // -- Affichage NO2
-
-    
-    // Affichage des valeurs de BTEX
-    // FIXME: Si pas le même nombre de périodes par tubes, le graph sera faux.
-    // FIXME: Le graphique semble disparaitre
-    $.ajax({
-        url: "scripts/query_btex.php",
-        type: 'GET',
-        data : { tube_id: tube.properties.tube_id },
-        dataType: 'json',
-        error: function (request, error) {
-            console.log(arguments);
-            console.log("Ajax error: " + error);
-        },       
-        success: function(response,textStatus,jqXHR){
-            if (typeof response[0] == "undefined") {
-                console.log("Pas de BTEX");
-                return;
+            /* Prépare le ou les élément(s) HTML du graph */
+            if (response[0][0].nb_poll == 1) {
+                displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas>');            
+            } else {
+                displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="350"></canvas>');            
             };
-            // Création de la balise HTML du graphique (Fait avant)      
-            // displayControl.setContent('<canvas id="graph_btex" width="600" height="400"></canvas>');            
-                        
-            // -- Labels
-            var graph_labels = [];
-            for (var i in response) {
-                graph_labels.push(response[i].nom_polluant);
-            };            
-            
-            // -- Titre
-            var graph_title = "BTEX (" + response[0].nom_unite + ")";
-            
-            // -- Données
-            var graph_data = [];
-            for (var i in response) {
-                graph_data.push(response[i].val);
-            };   
-            
-            // Graphique
-            var ctx = document.getElementById("graph_btex");
-            var graph_btex = new Chart(ctx, {
-                type: 'bar', // 'horizontalBar',          
-                data: {
-                    labels: graph_labels,
-                    datasets: [{
-                        label: 'BTEX',
-                        data: graph_data,
-                        backgroundColor: [
-                            'rgba(170, 170, 170, 0.8)', 
-                            'rgba(170, 170, 170, 0.8)', 
-                            'rgba(170, 170, 170, 0.8)', 
-                            'rgba(170, 170, 170, 0.8)', 
-                            'rgba(170, 170, 170, 0.8)', 
-                        ],
-                        borderColor: [
-                            'rgba(170, 170, 170, 1)',
-                            'rgba(170, 170, 170, 1)',
-                            'rgba(170, 170, 170, 1)',
-                            'rgba(170, 170, 170, 1)',
-                            'rgba(170, 170, 170, 1)',
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        fontSize: 20,
-                        text: graph_title
-                    },
-                    legend: {
-                        position: 'bottom',
-                        display: false,
-                    },
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                // beginAtZero:true,
-                                min:0,
-                                max: 50,
-                            }
+ 
+            /* Graphique NO2 */            
+            if (typeof response[1][0] !== "undefined") {
+                var graph_labels = [];
+                for (var i in response[1]) {
+                    graph_labels.push(response[1][i].nom_periode);
+                };            
+                
+                var graph_title = response[1][0].nom_polluant + " (" + response[1][0].nom_unite + ")";
+                
+                // -- Données
+                var graph_data = [];
+                for (var i in response[1]) {
+                    graph_data.push(response[1][i].val);
+                };   
+                
+                // Graphique
+                var ctx = document.getElementById("graph_no2");
+                var graph_no2 = new Chart(ctx, {
+                    type: 'bar', // 'horizontalBar',          
+                    data: {
+                        labels: graph_labels,
+                        datasets: [{
+                            label: 'NO2',
+                            data: graph_data,
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.8)', // Hivert
+                                'rgba(54, 162, 235, 0.8)',
+                                'rgba(255, 206, 86, 0.8)', // Ete
+                                'rgba(255, 206, 86, 0.8)',
+                                'rgba(75, 192, 192, 0.8)', // Corrections
+                                'rgba(75, 192, 192, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 250, 85, 1)'
+                            ],
+                            borderWidth: 1
                         }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            fontSize: 20,
+                            text: graph_title
+                        },
+                        legend: {
+                            position: 'bottom',
+                            display: false,
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    // beginAtZero:true,
+                                    min:0,
+                                    max: 200,
+                                }
+                            }]
+                        }
                     }
-                }
-            });  
-        }
-    }); // -- Affichage BTEX    
-    
-   
+                }); 
+            };
 
-   
+            /* Graphique BTEX */             
+            if (typeof response[2][0] !== "undefined") {
+            
+                // -- Labels
+                var graph_labels = [];
+                for (var i in response[2]) {
+                    graph_labels.push(response[2][i].nom_polluant);
+                };            
+                
+                // -- Titre
+                var graph_title = "BTEX (" + response[2][0].nom_unite + ")";
+                
+                // -- Données
+                var graph_data = [];
+                for (var i in response[2]) {
+                    graph_data.push(response[2][i].val);
+                };   
+                
+                // Graphique
+                var ctx = document.getElementById("graph_btex");
+                var graph_btex = new Chart(ctx, {
+                    type: 'bar', // 'horizontalBar',          
+                    data: {
+                        labels: graph_labels,
+                        datasets: [{
+                            label: 'BTEX',
+                            data: graph_data,
+                            backgroundColor: [
+                                'rgba(170, 170, 170, 0.8)', 
+                                'rgba(170, 170, 170, 0.8)', 
+                                'rgba(170, 170, 170, 0.8)', 
+                                'rgba(170, 170, 170, 0.8)', 
+                                'rgba(170, 170, 170, 0.8)', 
+                            ],
+                            borderColor: [
+                                'rgba(170, 170, 170, 1)',
+                                'rgba(170, 170, 170, 1)',
+                                'rgba(170, 170, 170, 1)',
+                                'rgba(170, 170, 170, 1)',
+                                'rgba(170, 170, 170, 1)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            fontSize: 20,
+                            text: graph_title
+                        },
+                        legend: {
+                            position: 'bottom',
+                            display: false,
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    // beginAtZero:true,
+                                    min:0,
+                                    max: 30,
+                                }
+                            }]
+                        }
+                    }
+                });  
+            };
+            
+        }
+    });
+
 };
 
-function onEachFeature(feature, layer) {
+function onEachTube(feature, layer) {
+    /*
+    Code qui sera appliqué à chaque objet lors du chargement des tubes.
+    */
+    
+    /* Appel la fonction onClickFeature() en cliquant sur l'objet */
     layer.on({
-        // mouseover: highlightFeature,
-        // mouseout: resetHighlight,
         click: onClickFeature
     });
- 
-    // var popupcontent = [];
-    // for (var prop in feature.properties) {
-        // if (prop == "tube_image") {
-            // popupcontent.push("<img src='data:image/png;base64, " + feature.properties[prop] + "' />");
-        // } else {
-            // popupcontent.push(prop + ": " + feature.properties[prop]);
-        // };
-    // }
-    // layer.bindPopup(popupcontent.join("<br />"));      
- 
+
+    /* Ajoute un popup avec les valeurs de l'objet */
     var popupcontent = "<h4>" + feature.properties["tube_nom"] + "</h4>";
     popupcontent += "<p><b>Identifiant: </b>" + feature.properties["tube_id"] + "<br/>";
     popupcontent += "<b>Typologie: </b>" + feature.properties["typo_nom"] + "<br/>";
     popupcontent += "<b>Commune: </b>" + feature.properties["tube_ville"] + "</p><br/>";
     popupcontent += "<img src='data:image/png;base64, " + feature.properties["tube_image"] + "'/>";
     layer.bindPopup(popupcontent);      
- 
 }; 
 
 function loadGeoJson_tubes(data) {
     /*
-    Chargement de la vue des tubes depuis Geoserver.
+    Fonction de création de la couche des tubes
+    qui sera appelée si une donnée a été récupérée depuis Geoserver
     */
-    geojsonLayer = L.geoJson(data, {
-        id: 'toto',
-        name: 'tata',
-        // style: style,
-        onEachFeature: onEachFeature,
-        /* FIXME: Bug dans l'emplacement des markeurs spéciaux" */
+    
+    /* Charge les tubes depuis Geoserver */
+    tubes_layer = L.geoJson(data, {
+        id: 'tubes',
+        name: 'Tubes',
+        onEachFeature: onEachTube,
+        /* Crée un layer au lieu de simples marqueurs */
         pointToLayer: function (geojson, latlng) {        
             if (geojson.properties['typo_id'] == 1) {
                 return L.marker(latlng, {icon: icones.icon_trafic});                    
@@ -516,13 +438,15 @@ function loadGeoJson_tubes(data) {
             };
         }, 
     });
-	    
-	geojsonLayer.addTo(map); 
+	
+    /* Ajoute les tubes à la carte */
+	tubes_layer.addTo(map); 
 
-	// Zoom sur les tubes	
-    zoom_to_layer(geojsonLayer);
+	/* Zoom sur les tubes une fois ajoutés */
+    zoom_to_layer(tubes_layer);
 			
-    layerControl.addOverlay(geojsonLayer, "Emplacements des mesures"); // Add layer to layer switcher
+    /* Ajoute la couche au contrôleur de couches */
+    layerControl.addOverlay(tubes_layer, "Points des mesures");
 }; 
  
 /* Création des icones */
@@ -530,8 +454,7 @@ var icones = creation_icones();
  
 /* Création de la carte */
 var map = L.map('map', {layers: []}).setView([43.9, 7.2], 9);    
-map.attributionControl.addAttribution(
-    'Participatubes &copy; <a href="http://www.romain-souweine.fr">Romain Souweine - 2016</a>');    
+map.attributionControl.addAttribution('Participatubes &copy; <a href="http://www.romain-souweine.fr">Romain Souweine - 2016</a>');    
 
 /* Chargement des fonds carto */    
 var mapbox_light = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoicmh1bSIsImEiOiJjaWx5ZmFnM2wwMGdidmZtNjBnYzVuM2dtIn0.MMLcyhsS00VFpKdopb190Q', {
@@ -544,8 +467,8 @@ var mapbox_light = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}
 });   
 mapbox_light.addTo(map);        
     
-/* Chargement des tubes */
-var geojsonLayer = new L.GeoJSON();
+/* Chargement de la vue des tubes depuis Geoserver. */
+var tubes_layer = new L.GeoJSON();
 var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
 
 $.ajax({
@@ -555,57 +478,35 @@ $.ajax({
     success: loadGeoJson_tubes
 });    
  
-/* Creation d'un control leaflet pour afficher du texte html 
-Pour modifier le contenu:
-displayControl.setContent('Afficher graphiques ici?');
-*/
+/* Creation d'un control leaflet pour afficher du texte html */
 var displayControl = L.Control.extend({
-    options: {
-        position: 'topright'
-    },
+    options: {position: 'topright'},
     onAdd: function (map) {
-        // Create a container with classname and return it
         return L.DomUtil.create('div', 'my-display-control');
     },
     setContent: function (content) {
-    
         this.getContainer().innerHTML = content;
     }
 });
 var displayControl =  new displayControl().addTo(map);
- 
-/* var layers = [];
-    map.eachLayer(function(layer) {
-    // if( layer instanceof L.TileLayer )
-        layers.push(layer);
-        console.log(layer);
-        console.log(layer._leaflet_id)
-        // map.fitBounds(layer);
-});
-console.log(layers);   */  
-       
-    
 
-   
- 
-
-    
-/* Boutons de carte (Easy-buttons) */
+/* Bouton Leaflet - Zoom sur les tubes */
 L.easyButton( 'fa-arrows', function(){
-    zoom_to_layer(geojsonLayer)
+    zoom_to_layer(tubes_layer)
 }).addTo(map);
 
+/* Bouton Leaflet toggle - Afficher / Désafficher les tubes */
 var toggle = L.easyButton({
-    id: 'bouton-afficher-tubes',  // an id for the generated button
-    position: 'topleft',      // inherited from L.Control -- the corner it goes in
-    type: 'replace',          // set to animate when you're comfy with css
-    leafletClasses: true,     // use leaflet classes to style the button?  
+    id: 'bouton-afficher-tubes', 
+    position: 'topleft',
+    type: 'replace',
+    leafletClasses: true, // TODO: Si "false" on peut utiliser notre propre classe CSS 
     states: [{
         stateName: 'remove-markers',
         icon: 'fa-undo',
         title: 'Retirer les tubes',
         onClick: function(control) {
-            map.removeLayer(geojsonLayer);
+            map.removeLayer(tubes_layer);
             control.state('add-markers');
             // toggle.button.style.backgroundColor = 'white';
         }
@@ -614,72 +515,26 @@ var toggle = L.easyButton({
         icon: 'fa-map-marker',
         title: 'Ajouter les tubes',
         onClick: function(control) {
-            map.addLayer(geojsonLayer);
+            map.addLayer(tubes_layer);
             control.state('remove-markers');
             // toggle.button.style.backgroundColor = 'red';
         },
     }]
+}).addTo(map);
+
+/* Ferme les popups au click sur la carte */
+/* FIXME: Empêche le click sur le graph si il est dans un contrôle leaflet. */
+map.on('click', function(e) {        
+    displayControl.setContent('');
 });
-// toggle.button.style.width = '200px';
-// toggle.button.style.height = '100px';
-// toggle.button.style.backgroundColor = 'green'; // repeated line (note below)
-// toggle.button.style.transitionDuration = '.3s';
 
-toggle.addTo(map);
-
-
-// L.easyButton('fa-arrows', function( buttonArg, mapArg ){
-  // buttonArg.doStuff();
-  // mapArg.doStuff();
-// }).addTo(map);
-
-/* CUSTOM CONTROL EXAMPLE 
-var customControl =  L.Control.extend({
-
-  options: {
-    position: 'topleft'
-  },
-
-  onAdd: function (map) {
-    var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-
-    container.style.backgroundColor = 'white';     
-    container.style.backgroundImage = 'url(icons/marker-icon.png)'; // "url(http://t1.gstatic.com/images?q=tbn:ANd9GcR6FCUMW5bPn8C4PbKak2BJQQsmC-K9-mbYBeFZm1ZM2w2GRy40Ew)";
-    container.style.backgroundSize = "10px 10px";
-    // container.style.background-repeat = "no-repeat";
-    container.style.width = '30px';
-    container.style.height = '30px';
-
-    container.onclick = function(){
-      console.log('buttonClicked');
-    }
-
-    return container;
-  }
-});
-map.addControl(new customControl()); */
-
-
-// Ferme les popups au click sur la carte
-// FIXME: Empêche le click sur le graph si il est dans un contrôle leaflet.
-// map.on('click', function(e) {        
-    // displayControl.setContent('');
-    // console.log("TTTTTTTTTTTTTT");
-// });
-
-
-
-var baseLayers = {
-"Fonde de carte: MapBox Light": mapbox_light,
-// "Mapbox.light": base_layer2
-};
+/* Ajout du contrôleur de couches Leaflet "LayerSwitcher" */
+var baseLayers = {"Fonde de carte: MapBox Light": mapbox_light,};
 var layerControl = L.control.layers(baseLayers, null, {collapsed: false, position:"bottomleft"});
 map.addControl(layerControl); 
 
-
+/* Ajout du control Leaflet "ZoomBox" */
 L.Control.boxzoom({ position:'topleft' }).addTo(map);
-
-
 
 </script>
 
