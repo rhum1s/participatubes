@@ -33,6 +33,8 @@
     
     <!-- IonIcons -->
     <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+    
+    <!-- Chart.js -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         
     <!-- Config -->
@@ -41,6 +43,7 @@
     <!-- Scripts -->
     <script type="text/javascript" src="libs/geostats-master/lib/geostats.min.js"></script>
     <script type="text/javascript" src="libs/chroma.js-master/chroma.min.js"></script>
+    <script type="text/javascript" src="scripts/jenks.js"></script>
     
 </head>
 
@@ -53,76 +56,81 @@
 <!-- https://getbootstrap.com/components/#navbar -->
 <!-- http://getbootstrap.com/javascript/ -->
 <nav class="navbar navbar-default">
-    <div class="container-fluid">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
     
-        <!-- Bootstrap - Header -->
-        <div class="navbar-header">
-        
-            <!-- Image de la campagne -->
-            <a class="navbar-brand" href="#">           
-                <img alt="Brand" src="icons/marker-icon.png">
-            </a>    
+    <!-- Image de la campagne -->
+    <a class="navbar-brand" href="#">           
+    <img alt="Brand" src="icons/marker-icon.png">
+    </a>    
+    
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+    <!-- Titre de la campagne (dynamique) -->
+    <?php include 'scripts/header-bootstrap-title.php';?>
+    </div>
 
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            
-            <!-- Titre de la campagne (dynamique) -->
-            <?php include 'scripts/header-bootstrap-title.php';?>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+      
+        <!-- Bouton home -->
+        <li><a href="#" onclick="bootstrap_home();"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a></li>
+     
+        <!-- Liste des couches -->
+        <li class="dropdown">
+          <a href="#" id="dropdownMenu1" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Sites de mesure <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#" onClick="bootstrap_layers_list('tubes');">Sites de mesure</a></li>
+            <li><a href="#" onClick="bootstrap_layers_list('tubes_no2');">Mesures NO2</a></li>
+            <li><a href="#" onClick="bootstrap_layers_list('tubes_btex');">Mesures BTEX</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="disabled"><a href="#">Mapbox - light</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- Formulaire de recherche
+      <form class="navbar-form navbar-left" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Mon tube">
         </div>
+        <button type="submit" class="btn btn-default">Recherche</button>
+      </form>
+       -->
+      
+    <!-- Bouton Modal de connexion --> 
+    <ul class="nav navbar-nav navbar-right" data-toggle="modal" data-target="#myModal">
+        <li><a href="#">Connexion</a></li>
+    </ul>
 
-        <!-- Bootstrap - Boutons du Header -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <!-- Bouton home -->
-                <div class="btn-group" role="group" aria-label="...">
-                    <button type="button" class="btn btn-default navbar-btn" onclick="bootstrap_home();">
-                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-                    </button>
-                    <!-- Bouton tubes -->
-                    <button type="button" class="btn btn-default navbar-btn" onclick="bootstrap_tubes();">
-                        <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
-                    </button>        
-                </div> 
-            </ul>
-            
-            <!-- Formulaire de recherche -->
-            <form class="navbar-form navbar-left" role="search">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Mon tube">
+    <!-- Bouton Modal d'identification -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Identification administrateur</h4>
                 </div>
-                <button type="submit" class="btn btn-default">Recherche</button>
-            </form>
-
-            <!-- Bouton Modal de connexion --> 
-            <ul class="nav navbar-nav navbar-right" data-toggle="modal" data-target="#myModal">
-                <li><a href="#">Connexion</a></li>
-            </ul>
-
-            <!-- Bouton Modal d'identification -->
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Identification administrateur</h4>
-                        </div>
-                        <div class="modal-body">
-                            ...
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                            <button type="button" class="btn btn-primary">Connexion</button>
-                        </div>
-                    </div>
+                <div class="modal-body">
+                    ...
                 </div>
-            </div>      
-            
-        </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary">Connexion</button>
+                </div>
+            </div>
+        </div>
+    </div>
+      
+      
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
 </nav>
 
 <!-- Carte Leaflet -->
@@ -136,6 +144,29 @@
                                     Map script
 ------------------------------------------------------------------------------->
 <script type="text/javascript">
+
+function bootstrap_layers_list(layer_name) {
+   
+    displayControl.setContent('');
+    
+    if (layer_name == 'tubes') {
+        $("#dropdownMenu1").text('Sites de mesure');
+        map.removeLayer(tubes_btex_layer);
+        map.removeLayer(tubes_no2_layer);
+        map.addLayer(tubes_layer);
+    } else if (layer_name == 'tubes_no2') {
+        $("#dropdownMenu1").text('Mesures NO2');
+        map.removeLayer(tubes_layer);
+        map.removeLayer(tubes_btex_layer);
+        map.addLayer(tubes_no2_layer);          
+    } else if (layer_name == 'tubes_btex') {
+        $("#dropdownMenu1").text('Mesures BTEX');
+        map.removeLayer(tubes_layer);
+        map.removeLayer(tubes_no2_layer);
+        map.addLayer(tubes_btex_layer);        
+    };  
+};
+
 function bootstrap_home(){
     zoom_to_layer(tubes_layer);
 };
@@ -230,13 +261,17 @@ function onClickFeature(e) {
     map.panBy([50, 0], {duration: 0.5});
     "
     */
-
+    
     /* Zoom sur l'élément */
     map.setView(e.latlng); // Pour changer le zoom: ", 13"
 
     /* Récupération des informations du tube */
-    tube = this._popup._source.feature;       
-   
+    tube = this.feature; 
+    couche = tube.properties.layer;
+    
+    /* Test changer d'icone on click */
+    // e.target.setIcon(icones.icon);
+    
     $.ajax({
         url: "scripts/query_tubes.php",
         type: 'GET',
@@ -247,16 +282,23 @@ function onClickFeature(e) {
             console.log("Ajax error: " + error);
         },       
         success: function(response,textStatus,jqXHR){
-            
             /* Prépare le ou les élément(s) HTML du graph */
-            if (response[0][0].nb_poll == 1) {
+            // -- Si tubes no2
+            if ((couche == "tubes")&&(response[0][0].nb_poll == 1)) {
                 displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas>');            
-            } else {
+            // -- Si tubes no2 + btex
+            } else if ((couche == "tubes")&&(response[0][0].nb_poll > 1)) {
                 displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="350"></canvas>');            
+            // -- Si mesures no2
+            } else if ((couche == "mes_no2")&&(response[0][0].nb_poll = 1)) {
+                displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + "" + '</h3><canvas id="graph_mes_no2" width="600" height="700"></canvas>');            
+            // -- Si mesures btex
+            } else if ((couche == "mes_btex")&&(response[0][0].nb_poll > 1)) {
+                displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + "" + '</h3><canvas id="graph_mes_btex" width="600" height="700"></canvas>');            
             };
  
-            /* Graphique NO2 */            
-            if (typeof response[1][0] !== "undefined") {
+            /* Graphique tubes NO2 */            
+            if ((couche == "tubes")&&(typeof response[1][0] !== "undefined")) {
                 var graph_labels = [];
                 for (var i in response[1]) {
                     graph_labels.push(response[1][i].nom_periode);
@@ -270,7 +312,7 @@ function onClickFeature(e) {
                     graph_data.push(response[1][i].val);
                 };   
                 
-                // Graphique
+                // -- Graphique
                 var ctx = document.getElementById("graph_no2");
                 var graph_no2 = new Chart(ctx, {
                     type: 'bar', // 'horizontalBar',          
@@ -321,8 +363,8 @@ function onClickFeature(e) {
                 }); 
             };
 
-            /* Graphique BTEX */             
-            if (typeof response[2][0] !== "undefined") {
+            /* Graphique tubes BTEX */             
+            if ((couche == "tubes")&&(typeof response[2][0] !== "undefined")) {
             
                 // -- Labels
                 var graph_labels = [];
@@ -339,7 +381,7 @@ function onClickFeature(e) {
                     graph_data.push(response[2][i].val);
                 };   
                 
-                // Graphique
+                // -- Graphique
                 var ctx = document.getElementById("graph_btex");
                 var graph_btex = new Chart(ctx, {
                     type: 'bar', // 'horizontalBar',          
@@ -387,29 +429,221 @@ function onClickFeature(e) {
                     }
                 });  
             };
+
+            /* Graphique mesures BTEX */             
+            if ((couche == "mes_btex")&&(typeof response[3][0] !== "undefined")) {
             
+                // -- Labels
+                var graph_labels = [];
+                for (var i in response[3]) {
+                    graph_labels.push(response[3][i].tube_nom);
+                };            
+                
+                // -- Titre
+                var graph_title = "Total BTEX (" + response[3][0].nom_unite + ")";
+                
+                // -- Données
+                var graph_data = [];
+                for (var i in response[3]) {
+                    graph_data.push(response[3][i].val);
+                };   
+                
+                // -- Couleur des barres
+                var graph_colors = [];
+                var graph_border_colors = [];
+                for (var i in response[3]) {
+                    if (response[3][i].tube_id == tube.properties.tube_id) {
+                        graph_colors.push('rgba(255, 206, 86, 0.8)');
+                        graph_border_colors.push('rgba(255, 206, 86, 1)');
+                    } else {
+                        graph_colors.push('rgba(170, 170, 170, 0.8)');
+                        graph_border_colors.push('rgba(170, 170, 170, 1)');
+                    };
+                };                      
+                
+                // -- Graphique
+                var ctx = document.getElementById("graph_mes_btex");
+                var graph_mes = new Chart(ctx, {
+                    type: 'horizontalBar', // 'bar',          
+                    data: {
+                        labels: graph_labels,
+                        datasets: [{
+                            label: 'BTEX',
+                            data: graph_data,
+                            backgroundColor: graph_colors,
+                            borderColor: graph_border_colors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,    
+                        responsiveAnimationDuration: 0,                   
+                        title: {
+                            display: true,
+                            fontSize: 20,
+                            text: graph_title
+                        },
+                        legend: {
+                            position: 'bottom',
+                            display: false,
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    // beginAtZero:true,
+                                    min:0,
+                                    max: 30,
+                                    // categorySpacing: 0,
+                                }
+                            }],
+                            xAxes: [{ barPercentage: 1. }],
+                        }
+                    }
+                });  
+            };
+
+            /* Graphique mesures NO2 */             
+            if ((couche == "mes_no2")&&(typeof response[4][0] !== "undefined")) {
+                
+                // -- Labels
+                var graph_labels = [];
+                for (var i in response[4]) {
+                    // graph_labels.push(response[4][i].tube_nom);
+                    graph_labels.push("");
+                };            
+                
+                // -- Titre
+                var graph_title = "NO2 corrigé (" + response[4][0].nom_unite + ")";
+                
+                // -- Données
+                var graph_data = [];
+                for (var i in response[4]) {
+                    graph_data.push(response[4][i].val);
+                };   
+                
+                // -- Couleur des barres 
+                var graph_colors = [];
+                var graph_border_colors = [];
+                for (var i in response[4]) {
+                    if (response[4][i].tube_id == tube.properties.tube_id) {
+                        graph_colors.push('rgba(255, 206, 86, 0.8)');
+                        graph_border_colors.push('rgba(255, 206, 86, 1)');
+                    } else {
+                        graph_colors.push('rgba(170, 170, 170, 0.8)');
+                        graph_border_colors.push('rgba(170, 170, 170, 1)');
+                    };
+                };                      
+                
+                // -- Graphique
+                var ctx = document.getElementById("graph_mes_no2");
+                var graph_mes = new Chart(ctx, {
+                    type: 'horizontalBar', // 'bar' ,          
+                    data: {
+                        labels: graph_labels,
+                        datasets: [{
+                            label: 'NO2',
+                            data: graph_data,
+                            backgroundColor: graph_colors,
+                            borderColor: graph_border_colors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,    
+                        responsiveAnimationDuration: 0,                   
+                        title: {
+                            display: true,
+                            fontSize: 20,
+                            text: graph_title
+                        },
+                        legend: {
+                            position: 'bottom',
+                            display: false,
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    // beginAtZero:true,
+                                    min:0,
+                                    max: 30,
+                                    // categorySpacing: 0,
+                                }
+                            }],
+                            xAxes: [{ barPercentage: 1. }],
+                        }
+                    }
+                });  
+
+            };
+    
         }
     });
 
+    
 };
 
 function onEachTube(feature, layer) {
     /*
     Code qui sera appliqué à chaque objet lors du chargement des tubes.
     */
+      
+    /* Ajout d'une propriété layer pour retrouver la couche */
+    feature.properties.layer = 'tubes'; 
     
     /* Appel la fonction onClickFeature() en cliquant sur l'objet */
     layer.on({
         click: onClickFeature
     });
+    
+    /* Si l'utilisateur est un administrateur, il peut déplacer le marqueur */
+    if (user == "lambda") {
+        layer.options.draggable = true;
+        layer.on('dragend', function(event){
+                var position = event.target.getLatLng();
+                console.log(position);
+                //TODO: Update des coordonnées dans la bdd en ajax.
+                // marker.setLatLng(position,{id:'toto',draggable:'true'}).bindPopup(position).update();
+        });        
+    };
 
     /* Ajoute un popup avec les valeurs de l'objet */
     var popupcontent = "<h4>" + feature.properties["tube_nom"] + "</h4>";
     popupcontent += "<p><b>Identifiant: </b>" + feature.properties["tube_id"] + "<br/>";
     popupcontent += "<b>Typologie: </b>" + feature.properties["typo_nom"] + "<br/>";
+    popupcontent += "<b>Polluants: </b>" + feature.properties["polluants"] + "<br/>";
     popupcontent += "<b>Commune: </b>" + feature.properties["tube_ville"] + "</p><br/>";
     popupcontent += "<img src='data:image/png;base64, " + feature.properties["tube_image"] + "'/>";
     layer.bindPopup(popupcontent);      
+}; 
+
+function onEachTube_btex(feature, layer) {
+    /*
+    Code qui sera appliqué à chaque objet lors du chargement des tubes.
+    */
+    
+    /* Ajout d'une propriété layer pour retrouver la couche */
+    feature.properties.layer = 'mes_btex'; 
+      
+    /* Appel la fonction onClickFeature() en cliquant sur l'objet */
+    layer.on({
+        click: onClickFeature
+    });  
+}; 
+
+function onEachTube_no2(feature, layer) {
+    /*
+    Code qui sera appliqué à chaque objet lors du chargement des tubes.
+    */
+    
+    /* Ajout d'une propriété layer pour retrouver la couche */
+    feature.properties.layer = 'mes_no2'; 
+      
+    /* Appel la fonction onClickFeature() en cliquant sur l'objet */
+    layer.on({
+        click: onClickFeature
+    });  
 }; 
 
 function loadGeoJson_tubes(data) {
@@ -449,6 +683,134 @@ function loadGeoJson_tubes(data) {
     layerControl.addOverlay(tubes_layer, "Points des mesures");
 }; 
 
+function loadGeoJson_tubes_btex(data) {
+    /*
+    Fonction de création de la couche des tubes BTEX
+    qui sera appelée si une donnée a été récupérée depuis Geoserver
+    */
+    
+    // Liste des valeurs BTEX
+    items = [];
+    for (var i in data.features) {
+        
+        items.push(data.features[i].properties.tot_btex);
+    };     
+    
+    // Création des classes Jenks et couleurs
+    classifier = new geostats(items);
+    jenksResult = classifier.getJenks(6);
+    ranges = classifier.getRanges(6);
+    var color_x = chroma.scale('PuRd').colors(6)
+    // console.log(items);    
+    // console.log(jenksResult);
+    // console.log(color_x);    
+    // console.log(ranges);   
+    
+    /* Charge les tubes depuis Geoserver */
+    tubes_btex_layer = L.geoJson(data, {
+        id: 'tubes_btex',
+        name: 'Tubes BTEX',
+        onEachFeature: onEachTube_btex,
+
+        /* Crée le style de chaque marqueur en fonction des Jenks */
+        style: function(geojson) {
+
+            for (index = 0, len = jenksResult.length; index < len; ++index) { 
+                if (index != 0) {        
+                    if ( geojson.properties.tot_btex <= jenksResult[index]) {
+
+                        return {
+                            color: '#4B4B4B',
+                            opacity: 1,
+                            fillColor: color_x[index-1],
+                            fillOpacity: 1.,
+                            weight: 2,
+                            radius: 10 + index * 1.3,
+                            clickable: true,
+                        };
+                    };
+                };
+            };  
+            
+        },
+        
+        /* Crée un layer au lieu de simples marqueurs */
+        pointToLayer: function(geojson, latlng) {
+            return new L.CircleMarker(latlng, {radius: 0, fillOpacity: 0.85});
+        },      
+    });
+	
+    /* Ajoute les tubes à la carte */
+	// tubes_btex_layer.addTo(map); 
+			
+    /* Ajoute la couche au contrôleur de couches */
+    layerControl.addOverlay(tubes_btex_layer, "Points des mesures BTEX");
+}; 
+
+function loadGeoJson_tubes_no2(data) {
+    /*
+    Fonction de création de la couche des tubes NO2
+    qui sera appelée si une donnée a été récupérée depuis Geoserver
+    */
+    
+    // Liste des valeurs NO2
+    items = [];
+    for (var i in data.features) {
+        
+        items.push(data.features[i].properties.tot_no2);
+    };  
+    
+    // Création des classes Jenks et couleurs
+    classifier = new geostats(items);
+    jenksResult = classifier.getJenks(8);
+    ranges = classifier.getRanges(8);
+    var color_x = chroma.scale('PuRd').colors(8)
+    // console.log(items);    
+    // console.log(jenksResult);
+    // console.log(color_x);    
+    // console.log(ranges);   
+    
+    /* Charge les tubes depuis Geoserver */
+    tubes_no2_layer = L.geoJson(data, {
+        id: 'tubes_no2',
+        name: 'Tubes NO2',
+        onEachFeature: onEachTube_no2,
+
+        /* Crée le style de chaque marqueur en fonction des Jenks */
+        style: function(geojson) {
+
+            for (index = 0, len = jenksResult.length; index < len; ++index) { 
+                if (index != 0) {        
+                    if ( geojson.properties.tot_no2 <= jenksResult[index]) {
+
+                        return {
+                            color: '#4B4B4B',
+                            opacity: 1,
+                            fillColor: color_x[index-1],
+                            fillOpacity: 1.,
+                            weight: 2,
+                            radius: 10 + index * 1.3,
+                            clickable: true,
+                        };
+                    };
+                };
+            };  
+            
+        },
+        
+        /* Crée un layer au lieu de simples marqueurs */
+        pointToLayer: function(geojson, latlng) {
+            return new L.CircleMarker(latlng, {radius: 0, fillOpacity: 0.85});
+        },      
+    });
+	
+    /* Ajoute les tubes à la carte */
+	// tubes_no2_layer.addTo(map); 
+			
+    /* Ajoute la couche au contrôleur de couches */
+    layerControl.addOverlay(tubes_no2_layer, "Points des mesures NO2");
+}; 
+
 /* Variable utilisateur (Chargera fichiers de cfg différents) */ 
 var user = "lambda";
  
@@ -460,6 +822,7 @@ var map = L.map('map', {layers: []}).setView([43.9, 7.2], 9);
 map.attributionControl.addAttribution('Participatubes &copy; <a href="http://www.romain-souweine.fr">Romain Souweine - 2016</a>');    
 
 /* Chargement des fonds carto */    
+// TODO: https://leaflet-extras.github.io/leaflet-providers/preview/
 var mapbox_light = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoicmh1bSIsImEiOiJjaWx5ZmFnM2wwMGdidmZtNjBnYzVuM2dtIn0.MMLcyhsS00VFpKdopb190Q', {
     maxZoom: 18,
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
@@ -469,7 +832,11 @@ var mapbox_light = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}
     opacity: 1.,
 });   
 mapbox_light.addTo(map);        
-    
+// var mapbox_light = L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
+	// attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+// });
+// mapbox_light.addTo(map); 
+
 /* Chargement de la vue des tubes depuis Geoserver. */
 var tubes_layer = new L.GeoJSON();
 var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
@@ -479,7 +846,31 @@ $.ajax({
     datatype: 'json',
     jsonCallback: 'getJson',
     success: loadGeoJson_tubes
-});    
+});   
+
+/* Chargement de la vue des tubes btex. */
+var tubes_btex_layer = new L.GeoJSON();
+cql_filter = "&CQL_FILTER=polluants='NO2 et BTEX'";
+var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef" + cql_filter + "&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
+
+$.ajax({
+    url: geoJsonUrl,
+    datatype: 'json',
+    jsonCallback: 'getJson',
+    success: loadGeoJson_tubes_btex
+});  
+
+/* Chargement de la vue des tubes no2. */
+var tubes_no2_layer = new L.GeoJSON();
+cql_filter = "";
+var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef" + cql_filter + "&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
+
+$.ajax({
+    url: geoJsonUrl,
+    datatype: 'json',
+    jsonCallback: 'getJson',
+    success: loadGeoJson_tubes_no2
+});  
  
 /* Creation d'un control leaflet pour afficher du texte html */
 var displayControl = L.Control.extend({
@@ -493,38 +884,6 @@ var displayControl = L.Control.extend({
 });
 var displayControl =  new displayControl().addTo(map);
 
-/* Bouton Leaflet - Zoom sur les tubes */
-L.easyButton( 'fa-arrows', function(){
-    zoom_to_layer(tubes_layer)
-}).addTo(map);
-
-/* Bouton Leaflet toggle - Afficher / Désafficher les tubes */
-var toggle = L.easyButton({
-    id: 'bouton-afficher-tubes', 
-    position: 'topleft',
-    type: 'replace',
-    leafletClasses: true, // TODO: Si "false" on peut utiliser notre propre classe CSS 
-    states: [{
-        stateName: 'remove-markers',
-        icon: 'fa-undo',
-        title: 'Retirer les tubes',
-        onClick: function(control) {
-            map.removeLayer(tubes_layer);
-            control.state('add-markers');
-            // toggle.button.style.backgroundColor = 'white';
-        }
-    }, {
-        stateName: 'add-markers',
-        icon: 'fa-map-marker',
-        title: 'Ajouter les tubes',
-        onClick: function(control) {
-            map.addLayer(tubes_layer);
-            control.state('remove-markers');
-            // toggle.button.style.backgroundColor = 'red';
-        },
-    }]
-}).addTo(map);
-
 /* Ferme les popups au click sur la carte */
 /* FIXME: Empêche le click sur le graph si il est dans un contrôle leaflet. */
 map.on('click', function(e) {        
@@ -534,11 +893,14 @@ map.on('click', function(e) {
 /* Ajout du contrôleur de couches Leaflet "LayerSwitcher" */
 var baseLayers = {"Fonde de carte: MapBox Light": mapbox_light,};
 var layerControl = L.control.layers(baseLayers, null, {collapsed: false, position:"bottomleft"});
-map.addControl(layerControl); 
+// map.addControl(layerControl); 
 
 /* Ajout du control Leaflet "ZoomBox" */
 L.Control.boxzoom({ position:'topleft' }).addTo(map);
 
+function test() {
+    console.log("test");
+};
 </script>
 
 </body>

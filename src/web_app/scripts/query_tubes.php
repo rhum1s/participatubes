@@ -133,11 +133,63 @@ while ($row = pg_fetch_assoc( $res )) {
   $array_btex[] = $row;
 }
 
+/* [3] Mesures BTEX tous tubes */
+$sql = "
+select *
+from (
+	select 'btex' as polluant, tube_id, tube_nom, nom_unite, sum(val) as val 
+	from c_template.mesures as a
+	left join c_template.tubes as b using (tube_id)
+    left join c_template.unites as c using (id_unite)
+	where id_polluant in (2,3,4,5,6)
+	group by tube_id, tube_nom, nom_unite
+) as a
+order by val desc;
+";
+
+$res = pg_query($conn, $sql);
+if (!$res) {
+    echo "An SQL error occured.\n";
+    exit;
+}
+
+$array_btex_tous = array();
+while ($row = pg_fetch_assoc( $res )) {
+  $array_btex_tous[] = $row;
+}
+
+/* [4] Mesures NO2 tous tubes */
+$sql = "
+select *
+from (
+	select 'no2' as polluant, tube_id, tube_nom, nom_unite, sum(val_corrigee) as val 
+	from c_template.mesures as a
+	left join c_template.tubes as b using (tube_id)
+    left join c_template.unites as c using (id_unite)
+	where id_polluant in (1) and id_periode = 4
+	group by tube_id, tube_nom, nom_unite
+) as a
+order by val desc;
+";
+
+$res = pg_query($conn, $sql);
+if (!$res) {
+    echo "An SQL error occured.\n";
+    exit;
+}
+
+$array_no2_tous = array();
+while ($row = pg_fetch_assoc( $res )) {
+  $array_no2_tous[] = $row;
+}
+
 /* Stockage des résultats */
 $array_result = array(
     $array_nb_poll,
     $array_no2,
     $array_btex,
+    $array_btex_tous,
+    $array_no2_tous,
 );
 
 /* Export en JSON */
