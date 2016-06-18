@@ -86,9 +86,9 @@
         <li class="dropdown">
           <a href="#" id="dropdownMenu1" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Sites de mesure <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#" onClick="bootstrap_layers_list('tubes');">Sites de mesure</a></li>
-            <li><a href="#" onClick="bootstrap_layers_list('tubes_no2');">Mesures NO2</a></li>
-            <li><a href="#" onClick="bootstrap_layers_list('tubes_btex');">Mesures BTEX</a></li>
+            <li id="dd_tubes" class="disabled"><a href="#" onClick="bootstrap_layers_list('tubes');">Sites de mesure</a></li>
+            <li id="dd_tubes_no2" ><a href="#" onClick="bootstrap_layers_list('tubes_no2');">Mesures NO2</a></li>
+            <li id="dd_tubes_btex"><a href="#" onClick="bootstrap_layers_list('tubes_btex');">Mesures BTEX</a></li>
             <li role="separator" class="divider"></li>
             <li class="disabled"><a href="#">Mapbox - light</a></li>
           </ul>
@@ -150,17 +150,26 @@ function bootstrap_layers_list(layer_name) {
     displayControl.setContent('');
     
     if (layer_name == 'tubes') {
-        $("#dropdownMenu1").text('Sites de mesure');
+        $("#dropdownMenu1").html('Sites de mesure <span class="caret"></span>');
+        $("#dd_tubes").addClass( "disabled" );
+        $("#dd_tubes_no2").removeClass( "disabled" );
+        $("#dd_tubes_btex").removeClass( "disabled" );
         map.removeLayer(tubes_btex_layer);
         map.removeLayer(tubes_no2_layer);
         map.addLayer(tubes_layer);
     } else if (layer_name == 'tubes_no2') {
-        $("#dropdownMenu1").text('Mesures NO2');
+        $("#dropdownMenu1").html('Mesures NO2 <span class="caret"></span>');
+        $("#dd_tubes_no2").addClass( "disabled" );
+        $("#dd_tubes").removeClass( "disabled" );
+        $("#dd_tubes_btex").removeClass( "disabled" );        
         map.removeLayer(tubes_layer);
         map.removeLayer(tubes_btex_layer);
-        map.addLayer(tubes_no2_layer);          
+        map.addLayer(tubes_no2_layer);     
     } else if (layer_name == 'tubes_btex') {
-        $("#dropdownMenu1").text('Mesures BTEX');
+        $("#dropdownMenu1").html('Mesures BTEX <span class="caret"></span>');
+        $("#dd_tubes_btex").addClass( "disabled" );
+        $("#dd_tubes").removeClass( "disabled" );
+        $("#dd_tubes_no2").removeClass( "disabled" );          
         map.removeLayer(tubes_layer);
         map.removeLayer(tubes_no2_layer);
         map.addLayer(tubes_btex_layer);        
@@ -700,7 +709,7 @@ function loadGeoJson_tubes_btex(data) {
     classifier = new geostats(items);
     jenksResult = classifier.getJenks(6);
     ranges = classifier.getRanges(6);
-    var color_x = chroma.scale('PuRd').colors(6)
+    var color_x = chroma.scale('Reds').colors(6)
     // console.log(items);    
     // console.log(jenksResult);
     // console.log(color_x);    
@@ -764,7 +773,7 @@ function loadGeoJson_tubes_no2(data) {
     classifier = new geostats(items);
     jenksResult = classifier.getJenks(8);
     ranges = classifier.getRanges(8);
-    var color_x = chroma.scale('PuRd').colors(8)
+    var color_x = chroma.scale('Reds').colors(8)
     // console.log(items);    
     // console.log(jenksResult);
     // console.log(color_x);    
@@ -823,19 +832,19 @@ map.attributionControl.addAttribution('Participatubes &copy; <a href="http://www
 
 /* Chargement des fonds carto */    
 // TODO: https://leaflet-extras.github.io/leaflet-providers/preview/
-var mapbox_light = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoicmh1bSIsImEiOiJjaWx5ZmFnM2wwMGdidmZtNjBnYzVuM2dtIn0.MMLcyhsS00VFpKdopb190Q', {
-    maxZoom: 18,
-    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-        '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-        'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    id: 'mapbox.light',
-    opacity: 1.,
-});   
-mapbox_light.addTo(map);        
-// var mapbox_light = L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
-	// attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-// });
-// mapbox_light.addTo(map); 
+// var mapbox_light = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoicmh1bSIsImEiOiJjaWx5ZmFnM2wwMGdidmZtNjBnYzVuM2dtIn0.MMLcyhsS00VFpKdopb190Q', {
+    // maxZoom: 18,
+    // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+        // '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+        // 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    // id: 'mapbox.light',
+    // opacity: 1.,
+// });   
+// mapbox_light.addTo(map);
+var mapbox_light = L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
+	attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+});
+mapbox_light.addTo(map); 
 
 /* Chargement de la vue des tubes depuis Geoserver. */
 var tubes_layer = new L.GeoJSON();

@@ -132,17 +132,6 @@ SELECT
 	(select ST_SetSRID(ST_MakePoint(x, y), 2154))
 From tubes_tmp;
 
-/* Vue des tubes avec image encodée */  
-drop view if exists c_template.tubes_mef;
-create view c_template.tubes_mef as 
-select 
-	tube_id, tube_nom, tube_ville, typo_id, typo_nom, 
-	tube_validite, tube_validite_desc, tube_z,
-	encode(tube_image, 'base64') AS tube_image, 
-	geom
-from c_template.tubes as a
-left join c_template.tubes_typos as b using (typo_id);
-
 /* Table des polluants mesurés */
 DROP table if exists c_template.polluants;
 create table c_template.polluants (
@@ -223,6 +212,44 @@ with delimiter as ',' null as '' csv header;
 copy c_template.mesures 
 from '::RACINE::/documents/mes_btex.csv'
 with delimiter as ',' null as '' csv header;
+
+/* Vue des polluants mesurés par les tubes */
+drop view if exists c_template.tubes_poll;
+create view c_template.tubes_poll as 
+select distinct	
+	tube_id, 
+	case when id_polluant = 1 then 'no2' else 'btex' end as polluants
+from c_template.mesures as a;
+
+/* Vue des tubes mis en forme avec image encodée */  
+drop view if exists c_template.tubes_mef;
+create view c_template.tubes_mef as 
+select 
+	tube_id, tube_nom, tube_ville, typo_id, typo_nom, 
+	tube_validite, tube_validite_desc, tube_z,
+	(
+		select 
+			case 
+				when count(*) > 1 then 'NO2 et BTEX' 
+				else 'NO2' 
+			end
+		from c_template.tubes_poll 
+		where tube_id = a.tube_id
+	) as polluants,
+	(
+	select sum(val_corrigee)
+	from c_template.mesures 
+	where tube_id = a.tube_id and id_polluant = 1 and id_periode = 4
+	) as tot_no2,	
+	(
+	select sum(val)
+	from c_template.mesures 
+	where tube_id = a.tube_id and id_polluant > 1
+	) as tot_btex,	
+	encode(tube_image, 'base64') AS tube_image, 
+	geom
+from c_template.tubes as a
+left join c_template.tubes_typos as b using (typo_id);
 
 /* Création de la table des rendus */
 DROP table if exists c_template.rendus;
@@ -336,10 +363,11 @@ VACUUM ANALYZE c_template.mesures_periodes;
 VACUUM ANALYZE c_template.polluants;
 VACUUM ANALYZE c_template.rendus;
 VACUUM ANALYZE c_template.tubes;
-VACUUM ANALYZE c_template.tubes_types;
+VACUUM ANALYZE c_template.tubes_typos;
 VACUUM ANALYZE c_template.unites;
 VACUUM ANALYZE c_template.utilisateurs;
 VACUUM ANALYZE c_template.utilisateurs_privileges;
+
 
 
 
