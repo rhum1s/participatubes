@@ -306,8 +306,8 @@ Table des utilisateurs et de leur mots de passe.
 Pour lire un mot de passe: SELECT crypt(''MonMotDePasse'', password_utilisateur);
 ';
 
-insert into c_template.utilisateurs values (1, 1, 'admin', 'Roberto', 'Carlos', 'test.user@mail.com', (select crypt('MonMotDePasse', gen_salt('bf',8))));
-insert into c_template.utilisateurs values (2, 1, 'public', 'Emilie', 'Jolie', 'test.user@mail.com', (select crypt('MonMotDePasse', gen_salt('bf',8))));
+insert into c_template.utilisateurs values (1, 1, 'admin', 'Roberto', 'Carlos', 'test.user@mail.com', (select crypt('toto', gen_salt('bf',8))));
+insert into c_template.utilisateurs values (2, 2, 'public', 'Emilie', 'Jolie', 'test.user@mail.com', (select crypt('toto', gen_salt('bf',8))));
 
 /** TODO: Création d'un schéma de configuration de l'application? */
 -- DROP table if exists c_template.config;
@@ -367,7 +367,5 @@ VACUUM ANALYZE c_template.tubes_typos;
 VACUUM ANALYZE c_template.unites;
 VACUUM ANALYZE c_template.utilisateurs;
 VACUUM ANALYZE c_template.utilisateurs_privileges;
-
-
 
 

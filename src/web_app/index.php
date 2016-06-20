@@ -93,42 +93,72 @@
             <li class="disabled"><a href="#">Mapbox - light</a></li>
           </ul>
         </li>
-      </ul>
 
-      <!-- Formulaire de recherche
+        <!-- Edition -->    
+        <li class="dropdown">
+          <a href="#" id="dropdownMenu2" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edition <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li id="dd_tubes" class="disabled"><a href="#" onClick="toto();">Déplacer un tube</a></li>
+          </ul>
+        </li>
+        
+      </ul>
+   
+
+      <!-- Formulaire de recherche 
       <form class="navbar-form navbar-left" role="search">
         <div class="form-group">
           <input type="text" class="form-control" placeholder="Mon tube">
         </div>
         <button type="submit" class="btn btn-default">Recherche</button>
       </form>
-       -->
+      -->
+      
+
       
     <!-- Bouton Modal de connexion --> 
     <ul class="nav navbar-nav navbar-right" data-toggle="modal" data-target="#myModal">
-        <li><a href="#">Connexion</a></li>
+        <li><a href="#" id="btn_connexion">Connexion</a></li>
     </ul>
 
-    <!-- Bouton Modal d'identification -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
+    <div id="myModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Identification administrateur</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span>
+
+                    </button>
+                     <h4 class="modal-title">Connexion</h4>
+
                 </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-primary">Connexion</button>
-                </div>
+                <form id="myform" class="form-horizontal" role="form" method="POST">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label class="control-label popup-label">Utilisateur</label>
+                                <input required type="text" class="form-control" name="login" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label class="control-label popup-label">Mot de passe</label>
+                                <input required type="text" class="form-control" name="pwd" value="">
+                            </div>
+                        </div>
+                        <div id="error">
+                            <div class="alert alert-danger"> <strong>Erreur</strong></br> Utilisateur ou mot de pass inconnu.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" id="submitForm">Login</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" id="reset">Annuler</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-      
-      
+ 
+
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
@@ -820,9 +850,12 @@ function loadGeoJson_tubes_no2(data) {
     layerControl.addOverlay(tubes_no2_layer, "Points des mesures NO2");
 }; 
 
+/* Enlève les boutons d'édition */
+$("#dropdownMenu2").addClass('hidden');
+
 /* Variable utilisateur (Chargera fichiers de cfg différents) */ 
 var user = "lambda";
- 
+
 /* Création des icones */
 var icones = creation_icones();
  
@@ -907,9 +940,45 @@ var layerControl = L.control.layers(baseLayers, null, {collapsed: false, positio
 /* Ajout du control Leaflet "ZoomBox" */
 L.Control.boxzoom({ position:'topleft' }).addTo(map);
 
-function test() {
-    console.log("test");
-};
+/* Connexion à travers le formulaire Bootstrap */
+$('#myModal').on('hidden.bs.modal', function () {
+    $(this).removeData('bs.modal');
+    $(':input', '#myform').val("");
+    $("#error").hide();
+});
+
+$("#error").hide();
+$("#submitForm").click(function (e) {
+    e.preventDefault();
+    $.ajax({
+        type: "POST",
+        url: "scripts/connexion.php",
+        data: $('#myform').serialize(),
+        success: function(response,textStatus,jqXHR){
+            if (response.length == 0) {
+                $("#error").show();    
+            } else {
+                if (response[0].nom_privilege == "Administrateur") {
+                    var user = "admin";
+                    $("a#btn_connexion").text("Utilisateur - " + response[0].prenom_utilisateur + " " + response[0].nom_utilisateur);
+                    $("#myModal").modal('hide');
+                    $("#dropdownMenu2").removeClass('hidden');
+                } else {
+                    var user = "public";
+                    $("a#btn_connexion").text("Connexion");
+                    $("#myModal").modal('hide');  
+                    $("#dropdownMenu2").addClass('hidden');                    
+                };              
+            };
+        },
+        error: function (request, error) {
+            console.log(arguments);
+            console.log("Ajax error: " + error);
+            $("#error").show();
+        },        
+    });
+});
+
 </script>
 
 </body>
