@@ -98,7 +98,7 @@
         <li class="dropdown">
           <a href="#" id="dropdownMenu2" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edition <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li id="dd_tubes" class="disabled"><a href="#" onClick="toto();">Déplacer un tube</a></li>
+            <li id="dd_tubes"><a href="#" onClick="start_editing();">Déplacer un tube</a></li>
           </ul>
         </li>
         
@@ -142,7 +142,7 @@
                         <div class="form-group">
                             <div class="col-md-12">
                                 <label class="control-label popup-label">Mot de passe</label>
-                                <input required type="text" class="form-control" name="pwd" value="">
+                                <input required type="password" class="form-control" name="pwd" value="">
                             </div>
                         </div>
                         <div id="error">
@@ -174,6 +174,17 @@
                                     Map script
 ------------------------------------------------------------------------------->
 <script type="text/javascript">
+
+
+function start_editing() {
+    // console.log(tubes_layer.options.draggable);
+    tubes_layer.options.draggable = true;
+    // console.log(tubes_layer.options.draggable);
+    console.log("*************************");
+    console.log(tubes_layer);
+    console.log(map);
+    console.log("*************************");
+};
 
 function bootstrap_layers_list(layer_name) {
    
@@ -637,7 +648,8 @@ function onEachTube(feature, layer) {
     });
     
     /* Si l'utilisateur est un administrateur, il peut déplacer le marqueur */
-    if (user == "lambda") {
+    if (user == "public") {
+        console.log(layer);
         layer.options.draggable = true;
         layer.on('dragend', function(event){
                 var position = event.target.getLatLng();
@@ -854,7 +866,7 @@ function loadGeoJson_tubes_no2(data) {
 $("#dropdownMenu2").addClass('hidden');
 
 /* Variable utilisateur (Chargera fichiers de cfg différents) */ 
-var user = "lambda";
+var user = "public";
 
 /* Création des icones */
 var icones = creation_icones();
@@ -865,19 +877,19 @@ map.attributionControl.addAttribution('Participatubes &copy; <a href="http://www
 
 /* Chargement des fonds carto */    
 // TODO: https://leaflet-extras.github.io/leaflet-providers/preview/
-// var mapbox_light = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoicmh1bSIsImEiOiJjaWx5ZmFnM2wwMGdidmZtNjBnYzVuM2dtIn0.MMLcyhsS00VFpKdopb190Q', {
-    // maxZoom: 18,
-    // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-        // '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-        // 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    // id: 'mapbox.light',
-    // opacity: 1.,
-// });   
-// mapbox_light.addTo(map);
-var mapbox_light = L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
-	attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-});
-mapbox_light.addTo(map); 
+var mapbox_light = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoicmh1bSIsImEiOiJjaWx5ZmFnM2wwMGdidmZtNjBnYzVuM2dtIn0.MMLcyhsS00VFpKdopb190Q', {
+    maxZoom: 18,
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+        '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+        'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    id: 'mapbox.light',
+    opacity: 1.,
+});   
+mapbox_light.addTo(map);
+// var mapbox_light = L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
+	// attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+// });
+// mapbox_light.addTo(map); 
 
 /* Chargement de la vue des tubes depuis Geoserver. */
 var tubes_layer = new L.GeoJSON();
@@ -963,6 +975,7 @@ $("#submitForm").click(function (e) {
                     $("a#btn_connexion").text("Utilisateur - " + response[0].prenom_utilisateur + " " + response[0].nom_utilisateur);
                     $("#myModal").modal('hide');
                     $("#dropdownMenu2").removeClass('hidden');
+                    $("#dd_tubes").removeClass('disabled');
                 } else {
                     var user = "public";
                     $("a#btn_connexion").text("Connexion");
@@ -978,6 +991,10 @@ $("#submitForm").click(function (e) {
         },        
     });
 });
+
+
+
+start_editing();
 
 </script>
 
