@@ -98,10 +98,12 @@
         <li class="dropdown">
           <a href="#" id="dropdownMenu2" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edition <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li id="dd_tubes"><a href="#" onClick="start_editing();">Déplacer un tube</a></li>
+            <li id="dd_tubes"><a href="#" onClick="start_editing();">Déplacer des tubes</a></li>
           </ul>
         </li>
-        
+   
+        <li id="btn_terminer" class="hidden"><a href="#" onClick="stop_editing();">Terminer</a></li>
+   
       </ul>
    
 
@@ -175,15 +177,68 @@
 ------------------------------------------------------------------------------->
 <script type="text/javascript">
 
-
 function start_editing() {
-    // console.log(tubes_layer.options.draggable);
-    tubes_layer.options.draggable = true;
-    // console.log(tubes_layer.options.draggable);
-    console.log("*************************");
-    console.log(tubes_layer);
-    console.log(map);
-    console.log("*************************");
+    /*
+    Pour regarder les variables d'un markeur:
+    for (var prop in marker) {
+        if(!marker.hasOwnProperty(prop)) continue;
+        console.log(prop + " = " + marker[prop]);    
+    };
+    */
+
+    /* Affiche le bouton terminer */
+    $("#dropdownMenu2").addClass('hidden');
+    $("#btn_terminer").removeClass('hidden');
+    
+    /* Rends chaque markeur draggable */
+    for (var key in tubes_layer._layers) {
+        var marker = tubes_layer._layers[key];
+        marker.dragging.enable();
+    };
+};
+
+function stop_editing() {
+    console.log("stop_editing()");
+
+    /* Rends chaque markeur non draggable */
+    for (var key in tubes_layer._layers) {
+        var marker = tubes_layer._layers[key];
+        marker.dragging.disable();
+    };
+    
+    /* Affiche le bouton d'édition */
+    $("#btn_terminer").addClass('hidden');
+    $("#dropdownMenu2").removeClass('hidden');
+
+    /* Update dans la bdd */
+    // FIXME: Le layer n'est pas update  tubes_layer.update();
+    
+    console.log(layers_maj);
+    
+    var sql = "";
+    for (var i = 0; i < layers_maj.length; i++) {
+        sql += layers_maj[i];
+    }
+
+    console.log(sql);
+    
+    $.ajax({
+        url: "scripts/update_tubes.php",
+        type: 'GET',
+        data : {type: "update", sql_queries: sql},
+        dataType: 'json',
+        error: function (request, error) {
+            console.log(arguments);
+            console.log("Ajax error: " + error);
+        },       
+        success: function(response,textStatus,jqXHR){
+            console.log("SUCCESS");
+            // FIXME: Returns an error even if success! 
+        },
+    });
+
+    /* Mise à 0 du compteur de mise à jour */
+    layers_maj = [];
 };
 
 function bootstrap_layers_list(layer_name) {
@@ -649,13 +704,19 @@ function onEachTube(feature, layer) {
     
     /* Si l'utilisateur est un administrateur, il peut déplacer le marqueur */
     if (user == "public") {
-        console.log(layer);
-        layer.options.draggable = true;
+
         layer.on('dragend', function(event){
+        
+                /* Retourne query update id tube et coordonnées en SQL */
+                var tube_id = event.target.feature.properties.tube_id;
                 var position = event.target.getLatLng();
-                console.log(position);
-                //TODO: Update des coordonnées dans la bdd en ajax.
-                // marker.setLatLng(position,{id:'toto',draggable:'true'}).bindPopup(position).update();
+                var tube_lat = position["lat"];
+                var tube_lng = position["lng"];
+                
+                // FIXME: Le nom du schema doit être variable 
+                var sql = "UPDATE c_template.tubes SET geom = ST_Transform(ST_SetSrid(ST_MakePoint(" + tube_lng + "," + tube_lat + "), 4326), 2154) WHERE tube_id = '" + tube_id + "';";
+                // console.log(sql);
+                layers_maj.push(sql);
         });        
     };
 
@@ -863,10 +924,11 @@ function loadGeoJson_tubes_no2(data) {
 }; 
 
 /* Enlève les boutons d'édition */
-$("#dropdownMenu2").addClass('hidden');
+// $("#dropdownMenu2").addClass('hidden');
 
 /* Variable utilisateur (Chargera fichiers de cfg différents) */ 
 var user = "public";
+var layers_maj = [];
 
 /* Création des icones */
 var icones = creation_icones();
@@ -994,7 +1056,20 @@ $("#submitForm").click(function (e) {
 
 
 
-start_editing();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </script>
 
