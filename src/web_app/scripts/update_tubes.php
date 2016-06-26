@@ -27,4 +27,6 @@ if (!$res) {
     exit;
 }
 
+echo "Tubes mis à jour.";
+
 ?>

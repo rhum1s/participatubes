@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+      
+    <!-- Bootbox -->
+    <script src="libs/bootbox.js/bootbox.min.js"></script>
         
     <!-- Leaflet -->
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
@@ -190,6 +193,13 @@ function start_editing() {
     $("#dropdownMenu2").addClass('hidden');
     $("#btn_terminer").removeClass('hidden');
     
+    /* Enregistre la position initiale de chaque markeur */
+    for (var key in tubes_layer._layers) {
+        var marker = tubes_layer._layers[key];
+        layers_orig[marker.feature.properties.tube_id] = marker._latlng;
+        // console.log(layers_orig[5]);
+    };
+        
     /* Rends chaque markeur draggable */
     for (var key in tubes_layer._layers) {
         var marker = tubes_layer._layers[key];
@@ -198,7 +208,9 @@ function start_editing() {
 };
 
 function stop_editing() {
-    console.log("stop_editing()");
+
+	// TODO: Simplifier en supprimant la variable globale de liste des id
+	// TODO: Essayer de faire un update du layer
 
     /* Rends chaque markeur non draggable */
     for (var key in tubes_layer._layers) {
@@ -211,34 +223,57 @@ function stop_editing() {
     $("#dropdownMenu2").removeClass('hidden');
 
     /* Update dans la bdd */
-    // FIXME: Le layer n'est pas update  tubes_layer.update();
-    
-    console.log(layers_maj);
-    
     var sql = "";
     for (var i = 0; i < layers_maj.length; i++) {
         sql += layers_maj[i];
-    }
+    }    
 
-    console.log(sql);
-    
-    $.ajax({
-        url: "scripts/update_tubes.php",
-        type: 'GET',
-        data : {type: "update", sql_queries: sql},
-        dataType: 'json',
-        error: function (request, error) {
-            console.log(arguments);
-            console.log("Ajax error: " + error);
-        },       
-        success: function(response,textStatus,jqXHR){
-            console.log("SUCCESS");
-            // FIXME: Returns an error even if success! 
-        },
-    });
+    /* Si enregisrer alors update bdd */
+    if (layers_maj.length > 0) { 
+		bootbox.confirm("Enregistrer les modifications ?", function(result) {
+			
+			if (result == true) {
 
-    /* Mise à 0 du compteur de mise à jour */
-    layers_maj = [];
+				$.ajax({
+					url: "scripts/update_tubes.php",
+					type: 'GET',
+					data : {type: "update", sql_queries: sql},
+					dataType: 'html',
+					error: function (request, error) {
+						console.log(arguments);
+						console.log("Ajax error: " + error);
+						// FIXME: Info non prise en compte des modifs + ROLLBACK
+					},       
+					success: function(response,textStatus,jqXHR){
+						bootbox.alert("Modifications enregistrées.", function() {});			 
+					},
+				});
+
+				/* Mise à 0 des compteurs de mise à jour */
+				layers_orig = {};
+				layers_maj = [];
+				layers_maj_id = [];
+				
+			} else {
+				/* Sinon rollback la position des tubes */
+				for (var key in tubes_layer._layers) {
+					var marker = tubes_layer._layers[key];
+					
+					for (var i = 0; i < layers_maj_id.length; i++) {
+						if (layers_maj_id[i] == marker.feature.properties.tube_id){
+							marker.setLatLng(layers_orig[layers_maj_id[i]]);
+						};
+					};	
+
+				};
+				
+				/* Mise à 0 des compteurs de mise à jour */
+				layers_orig = {};
+				layers_maj = [];
+				layers_maj_id = [];				
+			};
+		}); 
+	};
 };
 
 function bootstrap_layers_list(layer_name) {
@@ -715,8 +750,8 @@ function onEachTube(feature, layer) {
                 
                 // FIXME: Le nom du schema doit être variable 
                 var sql = "UPDATE c_template.tubes SET geom = ST_Transform(ST_SetSrid(ST_MakePoint(" + tube_lng + "," + tube_lat + "), 4326), 2154) WHERE tube_id = '" + tube_id + "';";
-                // console.log(sql);
                 layers_maj.push(sql);
+                layers_maj_id.push(tube_id);
         });        
     };
 
@@ -928,7 +963,9 @@ function loadGeoJson_tubes_no2(data) {
 
 /* Variable utilisateur (Chargera fichiers de cfg différents) */ 
 var user = "public";
+var layers_orig = {};
 var layers_maj = [];
+var layers_maj_id = [];
 
 /* Création des icones */
 var icones = creation_icones();
