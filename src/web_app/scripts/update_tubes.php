@@ -23,7 +23,7 @@ $sql = $sql_queries;
 
 $res = pg_query($conn, $sql);
 if (!$res) {
-    echo "An SQL error occured.\n";
+    echo "Erreure de mise à jour.";
     exit;
 }
 

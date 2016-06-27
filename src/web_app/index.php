@@ -198,7 +198,6 @@ function start_editing() {
     for (var key in tubes_layer._layers) {
         var marker = tubes_layer._layers[key];
         layers_orig[marker.feature.properties.tube_id] = marker._latlng;
-        // console.log(layers_orig[5]);
     };
         
     /* Rends chaque markeur draggable */
@@ -209,10 +208,6 @@ function start_editing() {
 };
 
 function stop_editing() {
-
-	// TODO: Simplifier en supprimant la variable globale de liste des id
-	// TODO: Essayer de faire un update du layer
-	// FIXME: Recharger les autres couches !
 
     /* Rends chaque markeur non draggable */
     for (var key in tubes_layer._layers) {
@@ -225,16 +220,19 @@ function stop_editing() {
     $("#dropdownMenu2").removeClass('hidden');
     $("#dropdownMenu1").removeClass('hidden');
 
-    /* Update dans la bdd */
+    /* Création du code SQL d'update */
     var sql = "";
     for (var i = 0; i < layers_maj.length; i++) {
-        sql += layers_maj[i];
-    }    
+        //FIXME: Le schema doit être une variable
+        sql += "UPDATE c_template.tubes SET geom = ST_Transform(ST_SetSrid(ST_MakePoint(" + layers_maj[i]["lng"] + "," + layers_maj[i]["lat"] + "), 4326), 2154) WHERE tube_id = '" + layers_maj[i]["id"] + "';";
+        
+    };
 
-    /* Si enregisrer alors update bdd */
+    /* Si des tubes ont été déplacés */
     if (layers_maj.length > 0) { 
 		bootbox.confirm("Enregistrer les modifications ?", function(result) {
 			
+			/* Si enregisrer alors update bdd */
 			if (result == true) {
 
 				$.ajax({
@@ -242,47 +240,96 @@ function stop_editing() {
 					type: 'GET',
 					data : {type: "update", sql_queries: sql},
 					dataType: 'html',
-					error: function (request, error) {
+					beforeSend:function( jqXHR, settings){
+						// Passe les variables nécessaires pour error/success
+						jqXHR.layers_maj = layers_maj;
+						jqXHR.layers_orig = layers_orig;
+						jqXHR.tubes_layer = tubes_layer;
+						jqXHR.tubes_no2_layer = tubes_no2_layer;
+						jqXHR.tubes_btex_layer = tubes_btex_layer;
+					},									
+					error: function (jqXHR, request, error) {
+						
+						/* Debug */
 						console.log(arguments);
 						console.log("Ajax error: " + error);
-						// FIXME: Info non prise en compte des modifs + ROLLBACK
+						
+						/* Rollback position des tubes */					
+						for (var key in jqXHR.tubes_layer._layers) {
+							var marker = jqXHR.tubes_layer._layers[key];
+							for (var i = 0; i < jqXHR.layers_maj.length; i++) {
+								if (jqXHR.layers_maj[i]["id"] == marker.feature.properties.tube_id){
+									marker.setLatLng(jqXHR.layers_orig[jqXHR.layers_maj[i]["id"]]);
+								};
+							};	
+						};						
+						
+						// TODO: Faire une vraie alerte "Warning"
+						bootbox.alert("<font color=\"red\"><strong>ALERT:</strong> Erreur dans l'enregistrement des modifications!</font>", function() {});
+						
 					},       
 					success: function(response,textStatus,jqXHR){
-						bootbox.alert("Modifications enregistrées.", function() {});			 
+						
+						if (response == "Erreure de mise à jour."){
+							
+							/* Rollback position des tubes */					
+							for (var key in jqXHR.tubes_layer._layers) {
+								var marker = jqXHR.tubes_layer._layers[key];
+								for (var i = 0; i < jqXHR.layers_maj.length; i++) {
+									if (jqXHR.layers_maj[i]["id"] == marker.feature.properties.tube_id){
+										marker.setLatLng(jqXHR.layers_orig[jqXHR.layers_maj[i]["id"]]);
+									};
+								};	
+							};						
+							
+							// TODO: Faire une vraie alerte "Warning"
+							bootbox.alert("<font color=\"red\"><strong>ALERT:</strong> Erreur dans l'enregistrement des modifications!</font>", function() {});							
+								
+						} else {
+						
+							/* Mise à jour des positions des tubes NO2 et BTEX */
+							for (var i = 0; i < jqXHR.layers_maj.length; i++) {
+								// --- NO2
+								for (var key in jqXHR.tubes_no2_layer._layers) {
+									var marker = jqXHR.tubes_no2_layer._layers[key];
+									if (jqXHR.layers_maj[i]["id"] == marker.feature.properties.tube_id){
+										var newLatLng = new L.LatLng(jqXHR.layers_maj[i]["lat"], jqXHR.layers_maj[i]["lng"]);
+										marker.setLatLng(newLatLng);
+									};
+								};
+								// --- BTEX
+								for (var key in jqXHR.tubes_btex_layer._layers) {
+									var marker = jqXHR.tubes_btex_layer._layers[key];
+									if (jqXHR.layers_maj[i]["id"] == marker.feature.properties.tube_id){
+										var newLatLng = new L.LatLng(jqXHR.layers_maj[i]["lat"], jqXHR.layers_maj[i]["lng"]);
+										marker.setLatLng(newLatLng);
+									};
+								};					
+							};						
+							
+							bootbox.alert("Modifications enregistrées.", function() {});	
+						};		 
 					},
 				});
-
-				/* Mise à 0 des compteurs de mise à jour */
-				layers_orig = {};
-				layers_maj = [];
-				layers_maj_id = [];
-				
-
-
-				// TODO: Mise à jour NO2 et BTEX
-
-
-
-
-				
+						
 			} else {
+				
 				/* Sinon rollback la position des tubes */
 				for (var key in tubes_layer._layers) {
 					var marker = tubes_layer._layers[key];
-					
-					for (var i = 0; i < layers_maj_id.length; i++) {
-						if (layers_maj_id[i] == marker.feature.properties.tube_id){
-							marker.setLatLng(layers_orig[layers_maj_id[i]]);
+					for (var i = 0; i < layers_maj.length; i++) {
+						if (layers_maj[i]["id"] == marker.feature.properties.tube_id){
+							marker.setLatLng(layers_orig[layers_maj[i]["id"]]);
 						};
 					};	
-
 				};
 				
-				/* Mise à 0 des compteurs de mise à jour */
-				layers_orig = {};
-				layers_maj = [];
-				layers_maj_id = [];				
 			};
+			
+			/* Mise à 0 des compteurs de mise à jour */
+			layers_orig = {};
+			layers_maj = [];			
+			
 		}); 
 	};
 };
@@ -761,11 +808,8 @@ function onEachTube(feature, layer) {
                 var position = event.target.getLatLng();
                 var tube_lat = position["lat"];
                 var tube_lng = position["lng"];
-                
-                // FIXME: Le nom du schema doit être variable 
-                var sql = "UPDATE c_template.tubes SET geom = ST_Transform(ST_SetSrid(ST_MakePoint(" + tube_lng + "," + tube_lat + "), 4326), 2154) WHERE tube_id = '" + tube_id + "';";
-                layers_maj.push(sql);
-                layers_maj_id.push(tube_id);
+               
+                layers_maj.push({"id":tube_id, "lat":tube_lat, "lng":tube_lng});
         });        
     };
 
@@ -979,7 +1023,6 @@ function loadGeoJson_tubes_no2(data) {
 var user = "public";
 var layers_orig = {};
 var layers_maj = [];
-var layers_maj_id = [];
 
 /* Création des icones */
 var icones = creation_icones();
@@ -1104,21 +1147,6 @@ $("#submitForm").click(function (e) {
         },        
     });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
