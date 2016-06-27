@@ -191,6 +191,7 @@ function start_editing() {
 
     /* Affiche le bouton terminer */
     $("#dropdownMenu2").addClass('hidden');
+    $("#dropdownMenu1").addClass('hidden');
     $("#btn_terminer").removeClass('hidden');
     
     /* Enregistre la position initiale de chaque markeur */
@@ -211,6 +212,7 @@ function stop_editing() {
 
 	// TODO: Simplifier en supprimant la variable globale de liste des id
 	// TODO: Essayer de faire un update du layer
+	// FIXME: Recharger les autres couches !
 
     /* Rends chaque markeur non draggable */
     for (var key in tubes_layer._layers) {
@@ -221,6 +223,7 @@ function stop_editing() {
     /* Affiche le bouton d'édition */
     $("#btn_terminer").addClass('hidden');
     $("#dropdownMenu2").removeClass('hidden');
+    $("#dropdownMenu1").removeClass('hidden');
 
     /* Update dans la bdd */
     var sql = "";
@@ -253,6 +256,14 @@ function stop_editing() {
 				layers_orig = {};
 				layers_maj = [];
 				layers_maj_id = [];
+				
+
+
+				// TODO: Mise à jour NO2 et BTEX
+
+
+
+
 				
 			} else {
 				/* Sinon rollback la position des tubes */
@@ -288,6 +299,7 @@ function bootstrap_layers_list(layer_name) {
         map.removeLayer(tubes_btex_layer);
         map.removeLayer(tubes_no2_layer);
         map.addLayer(tubes_layer);
+        $("#dropdownMenu2").removeClass('hidden');
     } else if (layer_name == 'tubes_no2') {
         $("#dropdownMenu1").html('Mesures NO2 <span class="caret"></span>');
         $("#dd_tubes_no2").addClass( "disabled" );
@@ -295,7 +307,8 @@ function bootstrap_layers_list(layer_name) {
         $("#dd_tubes_btex").removeClass( "disabled" );        
         map.removeLayer(tubes_layer);
         map.removeLayer(tubes_btex_layer);
-        map.addLayer(tubes_no2_layer);     
+        map.addLayer(tubes_no2_layer);   
+        $("#dropdownMenu2").addClass('hidden');  
     } else if (layer_name == 'tubes_btex') {
         $("#dropdownMenu1").html('Mesures BTEX <span class="caret"></span>');
         $("#dd_tubes_btex").addClass( "disabled" );
@@ -303,7 +316,8 @@ function bootstrap_layers_list(layer_name) {
         $("#dd_tubes_no2").removeClass( "disabled" );          
         map.removeLayer(tubes_layer);
         map.removeLayer(tubes_no2_layer);
-        map.addLayer(tubes_btex_layer);        
+        map.addLayer(tubes_btex_layer);  
+        $("#dropdownMenu2").addClass('hidden');      
     };  
 };
 
@@ -1019,12 +1033,12 @@ cql_filter = "";
 var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef" + cql_filter + "&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
 
 $.ajax({
-    url: geoJsonUrl,
-    datatype: 'json',
-    jsonCallback: 'getJson',
-    success: loadGeoJson_tubes_no2
+	url: geoJsonUrl,
+	datatype: 'json',
+	jsonCallback: 'getJson',
+	success: loadGeoJson_tubes_no2
 });  
- 
+
 /* Creation d'un control leaflet pour afficher du texte html */
 var displayControl = L.Control.extend({
     options: {position: 'topright'},
