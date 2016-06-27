@@ -10,7 +10,7 @@ if (!$conn) {
 }
 
 # Retrouve le nom de la campagne
-$sql = "SELECT valeur_info FROM c_template.info WHERE nom_info = 'Nom';";
+$sql = "SELECT valeur_info FROM " . $sch . ".info WHERE nom_info = 'Nom';";
 
 $result = pg_query($conn, $sql);
 if (!$result) {

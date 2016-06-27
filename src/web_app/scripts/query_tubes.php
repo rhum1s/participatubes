@@ -26,7 +26,7 @@ Combien de polluants sont mesurés
 select count(*) as nb_poll
 from (
     select distinct id_polluant
-    from c_template.mesures
+    from " . $sch . ".mesures
     where tube_id = " . $tube_id . "
 ) as a;
 ";
@@ -53,10 +53,10 @@ with tube as (
 		id_polluant, nom_polluant, tube_id, tube_nom, id_periode, nom_periode, 
 		id_unite, nom_unite, val, val_corrigee
 	from c_template.mesures as a
-	left join c_template.polluants as b using (id_polluant)
-	left join c_template.tubes as c using (tube_id)
-	left join c_template.mesures_periodes as d using (id_periode)
-	left join c_template.unites as e using (id_unite)
+	left join " . $sch . ".polluants as b using (id_polluant)
+	left join " . $sch . ".tubes as c using (tube_id)
+	left join " . $sch . ".mesures_periodes as d using (id_periode)
+	left join " . $sch . ".unites as e using (id_unite)
 	where 
 		tube_id = " . $tube_id . " 
 		and id_polluant = 1	
@@ -112,10 +112,10 @@ select
 	id_polluant, nom_polluant, tube_id, tube_nom, id_periode, nom_periode, 
 	id_unite, nom_unite, val, val_corrigee
 from c_template.mesures as a
-left join c_template.polluants as b using (id_polluant)
-left join c_template.tubes as c using (tube_id)
-left join c_template.mesures_periodes as d using (id_periode)
-left join c_template.unites as e using (id_unite)
+left join " . $sch . ".polluants as b using (id_polluant)
+left join " . $sch . ".tubes as c using (tube_id)
+left join " . $sch . ".mesures_periodes as d using (id_periode)
+left join " . $sch . ".unites as e using (id_unite)
 where 
 	tube_id = " . $tube_id . "
 	and id_polluant in (2,3,4,5,6)
@@ -139,8 +139,8 @@ select *
 from (
 	select 'btex' as polluant, tube_id, tube_nom, nom_unite, sum(val) as val 
 	from c_template.mesures as a
-	left join c_template.tubes as b using (tube_id)
-    left join c_template.unites as c using (id_unite)
+	left join " . $sch . ".tubes as b using (tube_id)
+    left join " . $sch . ".unites as c using (id_unite)
 	where id_polluant in (2,3,4,5,6)
 	group by tube_id, tube_nom, nom_unite
 ) as a
@@ -164,8 +164,8 @@ select *
 from (
 	select 'no2' as polluant, tube_id, tube_nom, nom_unite, sum(val_corrigee) as val 
 	from c_template.mesures as a
-	left join c_template.tubes as b using (tube_id)
-    left join c_template.unites as c using (id_unite)
+	left join " . $sch . ".tubes as b using (tube_id)
+    left join " . $sch . ".unites as c using (id_unite)
 	where id_polluant in (1) and id_periode = 4
 	group by tube_id, tube_nom, nom_unite
 ) as a

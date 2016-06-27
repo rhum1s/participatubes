@@ -224,8 +224,8 @@ function stop_editing() {
     var sql = "";
     for (var i = 0; i < layers_maj.length; i++) {
         //FIXME: Le schema doit être une variable
-        sql += "UPDATE c_template.tubes SET geom = ST_Transform(ST_SetSrid(ST_MakePoint(" + layers_maj[i]["lng"] + "," + layers_maj[i]["lat"] + "), 4326), 2154) WHERE tube_id = '" + layers_maj[i]["id"] + "';";
-        
+        sql += "UPDATE " + wa_sch + ".tubes SET geom = ST_Transform(ST_SetSrid(ST_MakePoint(" + layers_maj[i]["lng"] + "," + layers_maj[i]["lat"] + "), 4326), 2154) WHERE tube_id = '" + layers_maj[i]["id"] + "';";
+		console.log(sql);
     };
 
     /* Si des tubes ont été déplacés */
