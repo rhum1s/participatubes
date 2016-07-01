@@ -1017,7 +1017,7 @@ function loadGeoJson_tubes_no2(data) {
 }; 
 
 /* Enlève les boutons d'édition */
-// $("#dropdownMenu2").addClass('hidden');
+$("#dropdownMenu2").addClass('hidden');
 
 /* Variable utilisateur (Chargera fichiers de cfg différents) */ 
 var user = "public";
