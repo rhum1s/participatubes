@@ -48,6 +48,10 @@
     <script type="text/javascript" src="libs/chroma.js-master/chroma.min.js"></script>
     <script type="text/javascript" src="scripts/jenks.js"></script>
     
+    <!-- Leaflet Sidebar -->
+    <script src="libs/leaflet-sidebar-master/src/L.Control.Sidebar.modified.js"></script>
+    <link rel="stylesheet" href="libs/leaflet-sidebar-master/src/L.Control.Sidebar.modified.css"/>
+    
 </head>
 
 <!------------------------------------------------------------------------------ 
@@ -167,6 +171,11 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
+
+<!-- Leaflet sidebar -->
+<div id="sidebar">
+    <h1>leaflet-sidebar</h1>
+</div>
 
 <!-- Carte Leaflet -->
 <div id="map"></div> 
@@ -463,15 +472,29 @@ function onClickFeature(e) {
     "
     */
     
+    /* Test pour surbrillance point selectionné */
+	/*
+	console.log(this);
+	//this.__proto__.setOpacity(0.1);   
+	//e.target.setOpacity(0.1);
+	console.log(e.target);
+	console.log(e.target.options.opacity);
+	e.target.options.opacity = 0.;
+	console.log(e.target.options.opacity);
+    */
+    
     /* Zoom sur l'élément */
     map.setView(e.latlng); // Pour changer le zoom: ", 13"
-
+    
     /* Récupération des informations du tube */
     tube = this.feature; 
     couche = tube.properties.layer;
     
     /* Test changer d'icone on click */
     // e.target.setIcon(icones.icon);
+
+   /* Affiche la side bar */
+   sidebar.show();     
     
     $.ajax({
         url: "scripts/query_tubes.php",
@@ -483,22 +506,23 @@ function onClickFeature(e) {
             console.log("Ajax error: " + error);
         },       
         success: function(response,textStatus,jqXHR){
-            /* Prépare le ou les élément(s) HTML du graph */
+
+            // Prépare le ou les élément(s) HTML du graph
             // -- Si tubes no2
             if ((couche == "tubes")&&(response[0][0].nb_poll == 1)) {
-                displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas>');            
+                sidebar.setContent('<canvas id="graph_no2" width="600" height="350"></canvas>');            
             // -- Si tubes no2 + btex
             } else if ((couche == "tubes")&&(response[0][0].nb_poll > 1)) {
-                displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + tube.properties.tube_nom + '</h3><canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="350"></canvas>');            
+                sidebar.setContent('<canvas id="graph_no2" width="600" height="350"></canvas><br/><canvas id="graph_btex" width="600" height="300"></canvas>');            
             // -- Si mesures no2
             } else if ((couche == "mes_no2")&&(response[0][0].nb_poll = 1)) {
-                displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + "" + '</h3><canvas id="graph_mes_no2" width="600" height="700"></canvas>');            
+                sidebar.setContent('<canvas id="graph_mes_no2" width="600" height="700"></canvas>');            
             // -- Si mesures btex
             } else if ((couche == "mes_btex")&&(response[0][0].nb_poll > 1)) {
-                displayControl.setContent('<button type="button" class="close" aria-label="Close" onclick="bootstrap_close_display();"><span aria-hidden="true">&times;</span></button><h3 style="color:black;">' + "" + '</h3><canvas id="graph_mes_btex" width="600" height="700"></canvas>');            
-            };
- 
-            /* Graphique tubes NO2 */            
+                sidebar.setContent('<canvas id="graph_mes_btex" width="600" height="700"></canvas>');            
+            };           
+
+            // Graphique tubes NO2           
             if ((couche == "tubes")&&(typeof response[1][0] !== "undefined")) {
                 var graph_labels = [];
                 for (var i in response[1]) {
@@ -564,7 +588,7 @@ function onClickFeature(e) {
                 }); 
             };
 
-            /* Graphique tubes BTEX */             
+            // Graphique tubes BTEX            
             if ((couche == "tubes")&&(typeof response[2][0] !== "undefined")) {
             
                 // -- Labels
@@ -631,7 +655,7 @@ function onClickFeature(e) {
                 });  
             };
 
-            /* Graphique mesures BTEX */             
+            // Graphique mesures BTEX             
             if ((couche == "mes_btex")&&(typeof response[3][0] !== "undefined")) {
             
                 // -- Labels
@@ -704,7 +728,7 @@ function onClickFeature(e) {
                 });  
             };
 
-            /* Graphique mesures NO2 */             
+            // Graphique mesures NO2            
             if ((couche == "mes_no2")&&(typeof response[4][0] !== "undefined")) {
                 
                 // -- Labels
@@ -781,6 +805,7 @@ function onClickFeature(e) {
     
         }
     });
+
 
     
 };
@@ -1098,6 +1123,7 @@ var displayControl =  new displayControl().addTo(map);
 /* FIXME: Empêche le click sur le graph si il est dans un contrôle leaflet. */
 map.on('click', function(e) {        
     displayControl.setContent('');
+    sidebar.hide();
 });
 
 /* Ajout du contrôleur de couches Leaflet "LayerSwitcher" */
@@ -1148,6 +1174,14 @@ $("#submitForm").click(function (e) {
     });
 });
 
+/* Leaflet sidebar */
+var sidebar = L.control.sidebar('sidebar', {
+    closeButton: true,
+    position: 'right',
+    autoPan: true,
+});
+map.addControl(sidebar);
+sidebar.hide();
 
 
 </script>
