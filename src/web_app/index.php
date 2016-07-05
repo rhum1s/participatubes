@@ -366,6 +366,7 @@ function bootstrap_layers_list(layer_name) {
         map.removeLayer(tubes_layer);
         map.removeLayer(tubes_btex_layer);
         map.addLayer(tubes_no2_layer);   
+        map.removeLayer(tmpLayer1);
         $("#dropdownMenu2").addClass('hidden');  
     } else if (layer_name == 'tubes_btex') {
         $("#dropdownMenu1").html('Mesures BTEX <span class="caret"></span>');
@@ -375,6 +376,7 @@ function bootstrap_layers_list(layer_name) {
         map.removeLayer(tubes_layer);
         map.removeLayer(tubes_no2_layer);
         map.addLayer(tubes_btex_layer);  
+        map.removeLayer(tmpLayer1);
         $("#dropdownMenu2").addClass('hidden');      
     };  
 };
@@ -474,17 +476,6 @@ function onClickFeature(e) {
     "
     */
     
-    /* Test pour surbrillance point selectionné */
-	/*
-	console.log(this);
-	//this.__proto__.setOpacity(0.1);   
-	//e.target.setOpacity(0.1);
-	console.log(e.target);
-	console.log(e.target.options.opacity);
-	e.target.options.opacity = 0.;
-	console.log(e.target.options.opacity);
-    */
-    
     /* Zoom sur l'élément */
     map.setView(e.latlng); // Pour changer le zoom: ", 13"
     
@@ -492,9 +483,19 @@ function onClickFeature(e) {
     tube = this.feature; 
     couche = tube.properties.layer;
     
-    /* Test changer d'icone on click */
-    // e.target.setIcon(icones.icon);
-
+    /* Surbrillance du point selectionné */
+    if (couche == "tubes") { 
+        map.removeLayer(tmpLayer1);
+        tmpLayer1 = new L.CircleMarker(e.latlng, {
+            radius: 16, fillOpacity: 0.3, fillColor: "#4B4B4B", color:"#4B4B4B", opacity: 0.3
+        }).addTo(map);    
+    } else {
+        var layer = e.target;
+        layer.setStyle({weight: 4});  // color: "#FFBF00", // layer.setIcon(layer.options.icon = icones.iconDiv);
+        if (tmpLayer) tmpLayer.setStyle({weight: 2});  // color: "#4B4B4B", 
+        tmpLayer = layer;  
+    };
+    
    /* Affiche la side bar */
    sidebar.show();     
     
@@ -1051,6 +1052,10 @@ var user = "public";
 var layers_orig = {};
 var layers_maj = [];
 
+/* Variable de layer temporaire */
+var tmpLayer = "";
+var tmpLayer1 = "";
+
 /* Création des icones */
 var icones = creation_icones();
  
@@ -1184,6 +1189,7 @@ var sidebar = L.control.sidebar('sidebar', {
 });
 map.addControl(sidebar);
 sidebar.hide();
+
 
 
 </script>
