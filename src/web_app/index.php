@@ -345,6 +345,8 @@ function stop_editing() {
 
 function bootstrap_layers_list(layer_name) {
    
+    $("#dropdownMenu2").addClass('hidden');
+   
     displayControl.setContent('');
     
     if (layer_name == 'tubes') {
