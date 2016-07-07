@@ -357,7 +357,9 @@ function bootstrap_layers_list(layer_name) {
         map.removeLayer(tubes_btex_layer);
         map.removeLayer(tubes_no2_layer);
         map.addLayer(tubes_layer);
-        $("#dropdownMenu2").removeClass('hidden');
+        if (user != "public") {
+            $("#dropdownMenu2").removeClass('hidden');
+        };
     } else if (layer_name == 'tubes_no2') {
         $("#dropdownMenu1").html('Mesures NO2 <span class="caret"></span>');
         $("#dd_tubes_no2").addClass( "disabled" );
@@ -681,8 +683,8 @@ function onClickFeature(e) {
                 var graph_border_colors = [];
                 for (var i in response[3]) {
                     if (response[3][i].tube_id == tube.properties.tube_id) {
-                        graph_colors.push('rgba(255, 206, 86, 0.8)');
-                        graph_border_colors.push('rgba(255, 206, 86, 1)');
+                        graph_colors.push('rgba(75, 75, 75, 0.8)');
+                        graph_border_colors.push('rgba(75, 75, 75, 1)');
                     } else {
                         graph_colors.push('rgba(170, 170, 170, 0.8)');
                         graph_border_colors.push('rgba(170, 170, 170, 1)');
@@ -704,6 +706,7 @@ function onClickFeature(e) {
                         }]
                     },
                     options: {
+                        animation : false,
                         responsive: true,
                         maintainAspectRatio: false,    
                         responsiveAnimationDuration: 0,                   
@@ -755,8 +758,8 @@ function onClickFeature(e) {
                 var graph_border_colors = [];
                 for (var i in response[4]) {
                     if (response[4][i].tube_id == tube.properties.tube_id) {
-                        graph_colors.push('rgba(255, 206, 86, 0.8)');
-                        graph_border_colors.push('rgba(255, 206, 86, 1)');
+                        graph_colors.push('rgba(75, 75, 75, 0.8)');
+                        graph_border_colors.push('rgba(75, 75, 75, 1)');
                     } else {
                         graph_colors.push('rgba(170, 170, 170, 0.8)');
                         graph_border_colors.push('rgba(170, 170, 170, 1)');
@@ -778,6 +781,7 @@ function onClickFeature(e) {
                         }]
                     },
                     options: {
+                        animation : false,
                         responsive: true,
                         maintainAspectRatio: false,    
                         responsiveAnimationDuration: 0,                   
@@ -1160,13 +1164,15 @@ $("#submitForm").click(function (e) {
                 $("#error").show();    
             } else {
                 if (response[0].nom_privilege == "Administrateur") {
-                    var user = "admin";
+                    user = "admin";
                     $("a#btn_connexion").text("Utilisateur - " + response[0].prenom_utilisateur + " " + response[0].nom_utilisateur);
                     $("#myModal").modal('hide');
-                    $("#dropdownMenu2").removeClass('hidden');
+                    if ($("#dd_tubes").hasClass("disabled")) {
+                        $("#dropdownMenu2").removeClass('hidden');
+                    };
                     $("#dd_tubes").removeClass('disabled');
                 } else {
-                    var user = "public";
+                    user = "public";
                     $("a#btn_connexion").text("Connexion");
                     $("#myModal").modal('hide');  
                     $("#dropdownMenu2").addClass('hidden');                    

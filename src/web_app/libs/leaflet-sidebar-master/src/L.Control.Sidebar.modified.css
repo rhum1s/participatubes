@@ -38,7 +38,7 @@
     -webkit-border-radius: 4px;
     border-radius: 4px; 
     background-color:white; /* RS - bgd color */
-    opacity:0.7; /* RS - Add opacity */
+    opacity:0.9; /* RS - Add opacity */
 }
 .leaflet-touch .leaflet-sidebar > .leaflet-control {
     box-shadow: none;
