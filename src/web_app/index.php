@@ -59,9 +59,106 @@
 ------------------------------------------------------------------------------->
 <body>
 
+<!-- Modal connexion (Utilise le bouton modal de connexion référencé plus bas) --> 
+<div id="myModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span>
+
+                </button>
+                 <h4 class="modal-title">Connexion</h4>
+
+            </div>
+            <form id="myform" class="form-horizontal" role="form" method="POST">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <label class="control-label popup-label">Utilisateur</label>
+                            <input required type="text" class="form-control" name="login" value="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <label class="control-label popup-label">Mot de passe</label>
+                            <input required type="password" class="form-control" name="pwd" value="">
+                        </div>
+                    </div>
+                    <div id="error">
+                        <div class="alert alert-danger"> <strong>Erreur</strong></br> Utilisateur ou mot de pass inconnu.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" id="submitForm">Login</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="reset">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton Modal formulaire tubes -->
+<div id="modal_form_tube" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span>
+
+                </button>
+                 <h4 class="modal-title">Ajouter un tube</h4>
+
+            </div>
+            <form id="myform_tube" class="form-horizontal" role="form" method="POST">
+                <div class="modal-body">                       
+                    
+                  <div class="form-group">
+                    <div class="col-md-12">
+                        <label for="tube_nom">Nom du tube</label>
+                        <input type="texts" class="form-control" id="tube_nom" placeholder="Nom du tube" name="tube_nom" >
+                    </div>
+                  </div>  
+                  
+                  <div class="form-group">
+                    <div class="col-md-12">
+                        <label for="type_tube">Typologie</label>
+                        <select class="form-control" id="type_tube" name="tube_type">
+                          <option>Trafic</option>
+                          <option>Urbain</option>
+                          <option>Proximité</option>
+                          <option>Rural</option>
+                        </select>
+                    </div>
+                  </div>  
+                 
+                  <div class="form-group">
+                    <div class="col-md-12">
+                        <!-- TODO: Faire un bouton particulier avec https://www.toptal.com/twitter-bootstrap/the-10-most-common-bootstrap-mistakes -->
+                        <label for="tube_photo">Ajouter une photo</label>
+                        <input type="file" class="form-control-file" id="tube_photo" name="tube_image">
+                        <small class="text-muted">TODO: Info caractéristiques image</small>
+                    </div>  
+                  </div>  
+              
+                    <div id="error_tube">
+                    <div class="alert alert-danger"> <strong>Erreur</strong></br> Erreur dans un des champs du formulaire.</div>
+                    </div>                        
+                    
+                    
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" id="submitFormTube">Ajouter</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="reset">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 
+
 <!-- Bootstrap -->
 <!-- https://getbootstrap.com/components/#navbar -->
 <!-- http://getbootstrap.com/javascript/ -->
+<!-- https://www.toptal.com/twitter-bootstrap/the-10-most-common-bootstrap-mistakes -->
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -106,11 +203,13 @@
           <a href="#" id="dropdownMenu2" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edition <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li id="dd_tubes"><a href="#" onClick="start_editing();">Déplacer des tubes</a></li>
+            <li id="add_tubes"><a href="#" onClick="ajouter_tubes();">Ajouter des tubes</a></li>
           </ul>
         </li>
    
         <li id="btn_terminer" class="hidden"><a href="#" onClick="stop_editing();">Terminer</a></li>
-   
+		<li id="btn_terminer_ajout_tubes" class="hidden"><a href="#" onClick="ajouter_tubes_fin();">Terminer</a></li>
+		
       </ul>
    
 
@@ -123,50 +222,10 @@
       </form>
       -->
       
-
-      
-    <!-- Bouton Modal de connexion --> 
+    <!-- Bouton Modal de connexion (Utilise le modal connexion référencé au début) --> 
     <ul class="nav navbar-nav navbar-right" data-toggle="modal" data-target="#myModal">
         <li><a href="#" id="btn_connexion">Connexion</a></li>
     </ul>
-
-    <div id="myModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span>
-
-                    </button>
-                     <h4 class="modal-title">Connexion</h4>
-
-                </div>
-                <form id="myform" class="form-horizontal" role="form" method="POST">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <div class="col-md-12">
-                                <label class="control-label popup-label">Utilisateur</label>
-                                <input required type="text" class="form-control" name="login" value="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-12">
-                                <label class="control-label popup-label">Mot de passe</label>
-                                <input required type="password" class="form-control" name="pwd" value="">
-                            </div>
-                        </div>
-                        <div id="error">
-                            <div class="alert alert-danger"> <strong>Erreur</strong></br> Utilisateur ou mot de pass inconnu.</div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" id="submitForm">Login</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal" id="reset">Annuler</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
- 
 
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
@@ -188,6 +247,25 @@
                                     Map script
 ------------------------------------------------------------------------------->
 <script type="text/javascript">
+
+function ajouter_tubes() {
+
+    /* Affiche le bouton terminer */
+    $("#dropdownMenu2").addClass('hidden');
+    $("#dropdownMenu1").addClass('hidden');
+    $("#btn_terminer_ajout_tubes").removeClass('hidden');	
+};
+
+function ajouter_tubes_fin() {
+	
+    /* Affiche le bouton terminer */
+    $("#dropdownMenu2").removeClass('hidden');
+    $("#dropdownMenu1").removeClass('hidden');
+    $("#btn_terminer_ajout_tubes").addClass('hidden');	
+    
+    /* Remise à zéro de la variable temporaire */
+    tmpLayerAddTube = "";
+};
 
 function start_editing() {
     /*
@@ -593,6 +671,9 @@ function onClickFeature(e) {
                 }); 
             };
 
+              
+            
+            
             // Graphique tubes BTEX            
             if ((couche == "tubes")&&(typeof response[2][0] !== "undefined")) {
             
@@ -806,8 +887,57 @@ function onClickFeature(e) {
                             xAxes: [{ barPercentage: 1. }],
                         }
                     }
-                });  
-
+                }); 
+                
+                
+				/* TODO - Si click sur bar zoom sur le tube */
+				ctx.onclick = function(evt){
+					//console.log(graph_mes);
+					
+					var activePoints = graph_mes.getElementAtEvent(evt);
+					// console.log(response[4][activePoints[0]._index]["tube_id"]);
+					
+					if (typeof activePoints[0] !== 'undefined') {
+						
+						for (var key in tubes_layer._layers) {
+							var marker = tubes_layer._layers[key];
+							if (marker.feature.properties.tube_id == parseInt(response[4][activePoints[0]._index]["tube_id"])) {
+								console.log(marker._latlng);
+								map.setView(e.latlng);
+								
+								
+								
+								/* Surbrillance du point selectionné 
+								FIXME - Répétition de code, faire une fonction */
+								//if (couche == "tubes") { 
+								//	map.removeLayer(tmpLayer1);
+								//	tmpLayer1 = new L.CircleMarker(e.latlng, {
+								//		radius: 16, fillOpacity: 0.3, fillColor: "#4B4B4B", color:"#4B4B4B", opacity: 0.3
+								//	}).addTo(map);    
+								//} else {
+									//var layer = e.target;
+									// layer.setStyle({weight: 4});  // color: "#FFBF00", // layer.setIcon(layer.options.icon = icones.iconDiv);
+									console.log(marker);
+									marker.setStyle({weight: 4});
+									//if (tmpLayer) tmpLayer.setStyle({weight: 2});  // color: "#4B4B4B", 
+									//tmpLayer = layer;  
+								//};
+								
+								
+								
+								
+								
+								
+								
+							};
+							//console.log(marker.feature.properties.tube_id, parseInt(response[4][activePoints[0]._index]["tube_id"]));
+						};
+					};
+					
+				};
+				
+				
+                 
             };
     
         }
@@ -996,7 +1126,7 @@ function loadGeoJson_tubes_no2(data) {
         
         items.push(data.features[i].properties.tot_no2);
     };  
-    
+
     // Création des classes Jenks et couleurs
     classifier = new geostats(items);
     jenksResult = classifier.getJenks(8);
@@ -1005,7 +1135,7 @@ function loadGeoJson_tubes_no2(data) {
     // console.log(items);    
     // console.log(jenksResult);
     // console.log(color_x);    
-    // console.log(ranges);   
+    // console.log(ranges);  
     
     /* Charge les tubes depuis Geoserver */
     tubes_no2_layer = L.geoJson(data, {
@@ -1050,7 +1180,7 @@ function loadGeoJson_tubes_no2(data) {
 
 /* Enlève les boutons d'édition */
 $("#dropdownMenu2").addClass('hidden');
-
+ 
 /* Variable utilisateur (Chargera fichiers de cfg différents) */ 
 var user = "public";
 var layers_orig = {};
@@ -1059,6 +1189,8 @@ var layers_maj = [];
 /* Variable de layer temporaire */
 var tmpLayer = "";
 var tmpLayer1 = "";
+var tmpLayerAddTube = "";
+var tmp_latlng = "";
 
 /* Création des icones */
 var icones = creation_icones();
@@ -1096,7 +1228,7 @@ $.ajax({
 
 /* Chargement de la vue des tubes btex. */
 var tubes_btex_layer = new L.GeoJSON();
-cql_filter = "&CQL_FILTER=polluants='NO2 et BTEX'";
+cql_filter = "&CQL_FILTER=tot_btex IS NOT NULL"; //cql_filter = "&CQL_FILTER=polluants='NO2 et BTEX'";
 var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef" + cql_filter + "&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
 
 $.ajax({
@@ -1108,7 +1240,7 @@ $.ajax({
 
 /* Chargement de la vue des tubes no2. */
 var tubes_no2_layer = new L.GeoJSON();
-cql_filter = "";
+cql_filter = "&CQL_FILTER=tot_no2 IS NOT NULL";
 var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef" + cql_filter + "&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
 
 $.ajax({
@@ -1130,11 +1262,23 @@ var displayControl = L.Control.extend({
 });
 var displayControl =  new displayControl().addTo(map);
 
-/* Ferme les popups au click sur la carte */
-/* FIXME: Empêche le click sur le graph si il est dans un contrôle leaflet. */
-map.on('click', function(e) {        
+/* Prise en compte du click sur la carte */
+map.on('click', function(e) {   
+	
+	// Cache les affichages graphs et popups     
     displayControl.setContent('');
     sidebar.hide();
+    
+    // Ajout de tubes
+    if (!$("#btn_terminer_ajout_tubes").hasClass('hidden')) {
+		
+		/* Enregistre la position du tube */
+		tmp_latlng = e.latlng;
+		
+		/* Afficher le formulaire d'insertion */
+		$('#modal_form_tube').modal('show');
+	};
+	
 });
 
 /* Ajout du contrôleur de couches Leaflet "LayerSwitcher" */
@@ -1163,7 +1307,7 @@ $("#submitForm").click(function (e) {
             if (response.length == 0) {
                 $("#error").show();    
             } else {
-                if (response[0].nom_privilege == "Administrateur") {
+                if (response[0].nom_privilege == "Administrateur") {					
                     user = "admin";
                     $("a#btn_connexion").text("Utilisateur - " + response[0].prenom_utilisateur + " " + response[0].nom_utilisateur);
                     $("#myModal").modal('hide');
@@ -1187,6 +1331,75 @@ $("#submitForm").click(function (e) {
     });
 });
 
+/* Gestion du formulaire tube */
+$('#modal_form_tube').on('hidden.bs.modal', function () {
+    $(this).removeData('bs.modal');
+    $(':input', '#myform_tube').val("");
+    $("#error_tube").hide();
+});
+
+$("#error_tube").hide();
+$("#submitFormTube").click(function (e) {
+    e.preventDefault();
+    
+    /* Test d'upload de photo */
+    //console.log($("#tube_photo").val());
+    
+    /* Vérification du formulaire */
+    if ($('#myform_tube').serializeArray()[0].value == "") {
+		$("#error_tube").show();
+		return;
+	};
+	if (typeof $('#myform_tube').serializeArray()[1] == 'undefined') {
+		$("#error_tube").show();
+		return;
+	};
+	
+	/* Exeuion de la requête et insertion du marqueur */
+    $.ajax({
+        type: "POST",
+        url: "scripts/insertion_tube.php",
+        data: { 
+			lat: tmp_latlng.lat, 
+			lng: tmp_latlng.lng,
+			nom: $('#myform_tube').serializeArray()[0].value,
+			type: $('#myform_tube').serializeArray()[1].value
+		},
+        dataType: 'html',
+        beforeSend:function( jqXHR, settings){
+            jqXHR.latlng = tmp_latlng;
+            jqXHR.icones = icones;
+            jqXHR.type = $('#myform_tube').serializeArray()[1].value;
+        },
+        success: function(response,textStatus,jqXHR){
+      
+			// Insertion d'un noueau markeur
+            if (jqXHR.type == "Trafic") {
+				icon_to_use = jqXHR.icones.icon_trafic;
+			} else if (jqXHR.type == "Urbain") {
+				icon_to_use = jqXHR.icones.icon_urbain;
+			} else if (jqXHR.type == "Rural") {
+				icon_to_use = jqXHR.icones.icon_rural;		
+			} else if (jqXHR.type == "Proximité") {
+				icon_to_use = jqXHR.icones.icon_proximite;			
+			};
+                  
+            var newMarker = new L.marker(jqXHR.latlng, {icon: icon_to_use}).addTo(map); 
+ 
+			// Fermeture du formulaire 
+			$("#modal_form_tube").modal('hide');
+			
+			// TODO : Popup Success? > console.log(response);
+ 
+        },
+        error: function (request, error) {
+            console.log(arguments);
+            console.log("Ajax error: " + error);
+            $("#error_tube").show();
+        },        
+    });
+});
+
 /* Leaflet sidebar */
 var sidebar = L.control.sidebar('sidebar', {
     closeButton: true,
@@ -1195,6 +1408,22 @@ var sidebar = L.control.sidebar('sidebar', {
 });
 map.addControl(sidebar);
 sidebar.hide();
+
+/* Leaflet location */
+map.locate({setView: false, maxZoom: 13});
+
+function onLocationFound(e) {
+    var radius = e.accuracy / 2;
+    L.marker(e.latlng).addTo(map).bindPopup("Approxiation " + radius + " mètres.") //.openPopup();
+    L.circle(e.latlng, radius).addTo(map);
+};
+
+map.on('locationfound', onLocationFound);
+function onLocationError(e) {
+    alert(e.message);
+};
+
+map.on('locationerror', onLocationError);
 
 
 
