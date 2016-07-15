@@ -185,7 +185,23 @@
       
         <!-- Bouton home -->
         <li><a href="#" onclick="bootstrap_home();"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a></li>
-     
+ 
+		<!-- TEST BTN GRAPIQUES 
+		<li> 
+		<button type="button" class="btn btn-info" data-toggle="button" aria-pressed="false" autocomplete="off">
+		<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+		</button>
+		</li>
+
+		<li>
+
+		<div class="checkbox checkbox-success checkbox-inline">
+		<input type="checkbox" id="inlineCheckbox2" value="option1" checked>
+		<label for="inlineCheckbox2"> Inline Two </label>
+		</div>  
+		</li>   
+		-->  
+		 
         <!-- Liste des couches -->
         <li class="dropdown">
           <a href="#" id="dropdownMenu1" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Sites de mesure <span class="caret"></span></a>
@@ -1343,7 +1359,15 @@ $("#submitFormTube").click(function (e) {
     e.preventDefault();
     
     /* Test d'upload de photo */
-    //console.log($("#tube_photo").val());
+    console.log($("#tube_photo"));
+    console.log($("#tube_photo").val());
+    // console.log($("#tube_photo").text());
+    // console.log($("#tube_photo").submit());
+    // console.log($("#tube_photo").serialize());
+    // console.log($("#tube_photo").resize());
+    // console.log($("#tube_photo").push());
+    // console.log($("#tube_photo").prop());
+    // console.log($("#tube_photo").data());
     
     /* Vérification du formulaire */
     if ($('#myform_tube').serializeArray()[0].value == "") {
@@ -1365,26 +1389,34 @@ $("#submitFormTube").click(function (e) {
 			nom: $('#myform_tube').serializeArray()[0].value,
 			type: $('#myform_tube').serializeArray()[1].value
 		},
-        dataType: 'html',
+        dataType: 'json',
         beforeSend:function( jqXHR, settings){
             jqXHR.latlng = tmp_latlng;
             jqXHR.icones = icones;
-            jqXHR.type = $('#myform_tube').serializeArray()[1].value;
         },
         success: function(response,textStatus,jqXHR){
       
 			// Insertion d'un noueau markeur
-            if (jqXHR.type == "Trafic") {
+            if (response[0].typo_nom == "T") {
 				icon_to_use = jqXHR.icones.icon_trafic;
-			} else if (jqXHR.type == "Urbain") {
+			} else if (response[0].typo_nom == "U") {
 				icon_to_use = jqXHR.icones.icon_urbain;
-			} else if (jqXHR.type == "Rural") {
+			} else if (response[0].typo_nom == "R") {
 				icon_to_use = jqXHR.icones.icon_rural;		
-			} else if (jqXHR.type == "Proximité") {
+			} else if (response[0].typo_nom == "P") {
 				icon_to_use = jqXHR.icones.icon_proximite;			
 			};
                   
             var newMarker = new L.marker(jqXHR.latlng, {icon: icon_to_use}).addTo(map); 
+ 
+			/* Ajoute un popup avec les valeurs de l'objet */
+			var popupcontent = "<h4>" + response[0].tube_nom + "</h4>";
+			popupcontent += "<p><b>Identifiant: </b>" + response[0].tube_id + "<br/>";
+			popupcontent += "<b>Typologie: </b>" + response[0].typo_nom + "<br/>";
+			popupcontent += "<b>Polluants: </b>" + response[0].polluants + "<br/>";
+			popupcontent += "<b>Commune: </b>" + response[0].tube_ville + "</p><br/>";
+			popupcontent += "<img src='data:image/png;base64, " + response[0].tube_image + "'/>";
+			newMarker.bindPopup(popupcontent); 
  
 			// Fermeture du formulaire 
 			$("#modal_form_tube").modal('hide');

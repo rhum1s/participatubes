@@ -36,6 +36,12 @@ select
 	'TODO!' as tube_ville,
 	ST_Transform(ST_SetSrid(ST_MakePoint(".$lng.", ".$lat."), 4326), 2154)
 from c_template.tubes;
+
+-- Sélection des attributs du nouveau tube pour les renvoyer 
+select *
+from c_template.tubes_mef
+order by tube_id desc 
+limit 1;
 ";
 
 $res = pg_query($conn, $sql);
@@ -44,5 +50,12 @@ if (!$res) {
     exit;
 }
 
-echo "Tube ".$nom." inséré.";
+$tube_attributs = array();
+while ($row = pg_fetch_assoc( $res )) {
+  $tube_attributs[] = $row;
+}
+
+/* Export en JSON */
+header('Content-Type: application/json');
+echo json_encode($tube_attributs);
 ?>    
