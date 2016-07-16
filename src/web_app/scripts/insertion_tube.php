@@ -11,7 +11,8 @@ $lat = $_POST['lat'];
 $lng = $_POST['lng'];
 $nom = $_POST['nom'];
 $type = $_POST['type'];
-    
+$image= base64_decode($_POST['image']);
+
 /* Chargement du fichier de config en fonction de l'utilisateur */
 if ($user == "admin") {
     include 'config_su.php';
@@ -28,12 +29,13 @@ if (!$conn) {
 
 /* Insertion du tube */
 $sql = "
-insert into c_template.tubes (tube_id, tube_nom, typo_id, tube_ville, geom) 
+insert into c_template.tubes (tube_id, tube_nom, typo_id, tube_ville, tube_image, geom) 
 select 
 	max(tube_id) + 1 as tube_id,
 	'".$nom."' as tube_nom,
 	(SELECT typo_id FROM c_template.tubes_typos WHERE typo_description = '".$type."') as typo_id,
 	'TODO!' as tube_ville,
+	'".pg_escape_bytea($image)."',
 	ST_Transform(ST_SetSrid(ST_MakePoint(".$lng.", ".$lat."), 4326), 2154)
 from c_template.tubes;
 

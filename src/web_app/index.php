@@ -134,7 +134,7 @@
                     <div class="col-md-12">
                         <!-- TODO: Faire un bouton particulier avec https://www.toptal.com/twitter-bootstrap/the-10-most-common-bootstrap-mistakes -->
                         <label for="tube_photo">Ajouter une photo</label>
-                        <input type="file" class="form-control-file" id="tube_photo" name="tube_image">
+                        <input type="file" accept="image/png, image/jpeg, image/gif" class="form-control-file" id="tube_photo" name="tube_image">
                         <small class="text-muted">TODO: Info caractéristiques image</small>
                     </div>  
                   </div>  
@@ -1196,7 +1196,7 @@ function loadGeoJson_tubes_no2(data) {
 
 /* Enlève les boutons d'édition */
 $("#dropdownMenu2").addClass('hidden');
- 
+
 /* Variable utilisateur (Chargera fichiers de cfg différents) */ 
 var user = "public";
 var layers_orig = {};
@@ -1355,21 +1355,11 @@ $('#modal_form_tube').on('hidden.bs.modal', function () {
 });
 
 $("#error_tube").hide();
+
 $("#submitFormTube").click(function (e) {
     e.preventDefault();
-    
-    /* Test d'upload de photo */
-    console.log($("#tube_photo"));
-    console.log($("#tube_photo").val());
-    // console.log($("#tube_photo").text());
-    // console.log($("#tube_photo").submit());
-    // console.log($("#tube_photo").serialize());
-    // console.log($("#tube_photo").resize());
-    // console.log($("#tube_photo").push());
-    // console.log($("#tube_photo").prop());
-    // console.log($("#tube_photo").data());
-    
-    /* Vérification du formulaire */
+
+    /* Vérification du formulaire (sans le champ photo) */
     if ($('#myform_tube').serializeArray()[0].value == "") {
 		$("#error_tube").show();
 		return;
@@ -1378,58 +1368,92 @@ $("#submitFormTube").click(function (e) {
 		$("#error_tube").show();
 		return;
 	};
-	
-	/* Exeuion de la requête et insertion du marqueur */
-    $.ajax({
-        type: "POST",
-        url: "scripts/insertion_tube.php",
-        data: { 
-			lat: tmp_latlng.lat, 
-			lng: tmp_latlng.lng,
-			nom: $('#myform_tube').serializeArray()[0].value,
-			type: $('#myform_tube').serializeArray()[1].value
-		},
-        dataType: 'json',
-        beforeSend:function( jqXHR, settings){
-            jqXHR.latlng = tmp_latlng;
-            jqXHR.icones = icones;
-        },
-        success: function(response,textStatus,jqXHR){
-      
-			// Insertion d'un noueau markeur
-            if (response[0].typo_nom == "T") {
-				icon_to_use = jqXHR.icones.icon_trafic;
-			} else if (response[0].typo_nom == "U") {
-				icon_to_use = jqXHR.icones.icon_urbain;
-			} else if (response[0].typo_nom == "R") {
-				icon_to_use = jqXHR.icones.icon_rural;		
-			} else if (response[0].typo_nom == "P") {
-				icon_to_use = jqXHR.icones.icon_proximite;			
-			};
-                  
-            var newMarker = new L.marker(jqXHR.latlng, {icon: icon_to_use}).addTo(map); 
- 
-			/* Ajoute un popup avec les valeurs de l'objet */
-			var popupcontent = "<h4>" + response[0].tube_nom + "</h4>";
-			popupcontent += "<p><b>Identifiant: </b>" + response[0].tube_id + "<br/>";
-			popupcontent += "<b>Typologie: </b>" + response[0].typo_nom + "<br/>";
-			popupcontent += "<b>Polluants: </b>" + response[0].polluants + "<br/>";
-			popupcontent += "<b>Commune: </b>" + response[0].tube_ville + "</p><br/>";
-			popupcontent += "<img src='data:image/png;base64, " + response[0].tube_image + "'/>";
-			newMarker.bindPopup(popupcontent); 
- 
-			// Fermeture du formulaire 
-			$("#modal_form_tube").modal('hide');
+    
+    /* Upload de la photo avant requetes */
+    if ($('#tube_photo')[0].files && $('#tube_photo')[0].files[0]) {
+		var reader = new FileReader();
+		reader.onload = function (e) {
 			
-			// TODO : Popup Success? > console.log(response);
- 
-        },
-        error: function (request, error) {
-            console.log(arguments);
-            console.log("Ajax error: " + error);
-            $("#error_tube").show();
-        },        
-    });
+			// FIXME: Restrictions sur la taille de l'image
+						
+			/* Execution de la requête et insertion du marqueur */
+			$.ajax({
+				type: "POST",
+				url: "scripts/insertion_tube.php",
+				data: { 
+					lat: tmp_latlng.lat, 
+					lng: tmp_latlng.lng,
+					image: e.target.result.replace('data:image/jpeg;base64,', ''),
+					nom: $('#myform_tube').serializeArray()[0].value,
+					type: $('#myform_tube').serializeArray()[1].value
+				},
+				dataType: 'json',
+				beforeSend:function( jqXHR, settings){
+					jqXHR.latlng = tmp_latlng;
+					jqXHR.icones = icones;
+					jqXHR.image = e.target.result;
+				},
+				success: function(response,textStatus,jqXHR){
+			  
+					// Insertion d'un noueau markeur
+					if (response[0].typo_nom == "T") {
+						icon_to_use = jqXHR.icones.icon_trafic;
+					} else if (response[0].typo_nom == "U") {
+						icon_to_use = jqXHR.icones.icon_urbain;
+					} else if (response[0].typo_nom == "R") {
+						icon_to_use = jqXHR.icones.icon_rural;		
+					} else if (response[0].typo_nom == "P") {
+						icon_to_use = jqXHR.icones.icon_proximite;			
+					};
+						  
+					var newMarker = new L.marker(jqXHR.latlng, {icon: icon_to_use}).addTo(map); 
+
+
+
+
+
+					// TODO: Il faut ajouter le markeur à la couche des tubes 
+					console.log(tubes_layer._layers);
+					tubes_layer._layers["hh"] = newMarker;
+					 
+					/*
+					for (var key in tubes_layer._layers) {
+						var marker = tubes_layer._layers[key];
+						layers_orig[marker.feature.properties.tube_id] = marker._latlng;
+					};	
+					*/				
+					
+					
+					
+		 
+					/* Ajoute un popup avec les valeurs de l'objet */
+					var popupcontent = "<h4>" + response[0].tube_nom + "</h4>";
+					popupcontent += "<p><b>Identifiant: </b>" + response[0].tube_id + "<br/>";
+					popupcontent += "<b>Typologie: </b>" + response[0].typo_nom + "<br/>";
+					popupcontent += "<b>Polluants: </b>" + response[0].polluants + "<br/>";
+					popupcontent += "<b>Commune: </b>" + response[0].tube_ville + "</p><br/>";
+					popupcontent += "<img src='data:image/png;base64, " + response[0].tube_image + "'/>";
+					// popupcontent += "<img src='" + jqXHR.image + "'/>";
+					newMarker.bindPopup(popupcontent); 
+		 
+					// Fermeture du formulaire 
+					$("#modal_form_tube").modal('hide');
+					
+					// TODO : Popup Success? > console.log(response);
+		 
+				},
+				error: function (request, error) {
+					console.log(arguments);
+					console.log("Ajax error: " + error);
+					$("#error_tube").show();
+				},        
+			});			
+			
+		};
+		reader.readAsDataURL($('#tube_photo')[0].files[0]);
+	} else {
+		$("#error_tube").show();
+	};
 });
 
 /* Leaflet sidebar */
