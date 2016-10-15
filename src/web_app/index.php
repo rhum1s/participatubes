@@ -1411,61 +1411,48 @@ $("#submitFormTube").click(function (e) {
     /* Upload de la photo avant requetes */
     if ($('#tube_photo')[0].files && $('#tube_photo')[0].files[0]) {
 		
-console.log("uploading photo");
-var canvas = document.createElement('canvas');
-var img = document.createElement("img");		
-		
+		// Traitement de l'image	
+		// Code récupéré ici: http://stackoverflow.com/questions/10333971/html5-pre-resize-images-before-uploading
 		var reader = new FileReader();
 		reader.onload = function (e) {
+
+			var canvas = document.createElement('canvas');
+			var img = document.createElement("img");
+		
+			img.src = e.target.result;
+
+			var ctx = canvas.getContext("2d");
+			ctx.drawImage(img, 0, 0);
+
+			var MAX_WIDTH = 100;
+			var MAX_HEIGHT = 500;
+			var width = img.width;
+			var height = img.height;
 			
-			// FIXME: Restrictions sur la taille de l'image ou modif
-			// http://stackoverflow.com/questions/10333971/html5-pre-resize-images-before-uploading
-			// console.log(e.target.result);
-			// console.log($('#tube_photo')[0].files[0]);
+			console.log(width, height);
+
+			if (width > height) {
+			  if (width > MAX_WIDTH) {
+				height *= MAX_WIDTH / width;
+				width = MAX_WIDTH;
+			  }
+			} else {
+			  if (height > MAX_HEIGHT) {
+				width *= MAX_HEIGHT / height;
+				height = MAX_HEIGHT;
+			  }
+			}
+			canvas.width = width;
+			canvas.height = height;
+			var ctx = canvas.getContext("2d");
+			ctx.drawImage(img, 0, 0, width, height);
+
+			var dataurl = canvas.toDataURL("image/jpeg"); // peut etre fait en png
 			
-
+			// FIXME: Peut ne pas fonctionner le premier coup, pourquoi?
 			
-			
-// http://stackoverflow.com/questions/10333971/html5-pre-resize-images-before-uploading
-// console.log(e.target.result);
-
-
-img.src = e.target.result
-console.log(img);
-
-var ctx = canvas.getContext("2d");
-ctx.drawImage(img, 0, 0);
-
-var MAX_WIDTH = 100;
-var MAX_HEIGHT = 500;
-var width = img.width;
-var height = img.height;
-
-console.log(width);
-console.log(height);
-console.log('stop');
-
-if (width > height) {
-  if (width > MAX_WIDTH) {
-    height *= MAX_WIDTH / width;
-    width = MAX_WIDTH;
-  }
-} else {
-  if (height > MAX_HEIGHT) {
-    width *= MAX_HEIGHT / height;
-    height = MAX_HEIGHT;
-  }
-}
-canvas.width = width;
-canvas.height = height;
-var ctx = canvas.getContext("2d");
-ctx.drawImage(img, 0, 0, width, height);
-
-// var dataurl = canvas.toDataURL("image/png");
-var dataurl = canvas.toDataURL("image/jpeg");
-console.log(dataurl.replace('data:image/jpeg;base64,', ''));
-// console.log("fin traitement image");
-// console.log(e.target.result.replace('data:image/jpeg;base64,', ''));
+			// FIXME: Peut ne pas fonctionner sous IOS:
+			// http://stackoverflow.com/questions/11929099/html5-canvas-drawimage-ratio-bug-ios
 			
 			/* Execution de la requête et insertion du marqueur */
 			$.ajax({
@@ -1474,8 +1461,7 @@ console.log(dataurl.replace('data:image/jpeg;base64,', ''));
 				data: { 
 					lat: tmp_latlng.lat, 
 					lng: tmp_latlng.lng,
-					//image: e.target.result.replace('data:image/jpeg;base64,', ''),
-					image: dataurl.replace('data:image/jpeg;base64,', ''),
+					image: dataurl.replace('data:image/jpeg;base64,', ''), //image: e.target.result.replace('data:image/jpeg;base64,', ''),
 					nom: $('#myform_tube').serializeArray()[0].value,
 					type: $('#myform_tube').serializeArray()[1].value
 				},
