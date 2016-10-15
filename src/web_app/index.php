@@ -220,11 +220,13 @@
           <ul class="dropdown-menu">
             <li id="dd_tubes"><a href="#" onClick="start_editing();">Déplacer des tubes</a></li>
             <li id="add_tubes"><a href="#" onClick="ajouter_tubes();">Ajouter des tubes</a></li>
+            <li id="del_tubes"><a href="#" onClick="supprimer_tubes();">Supprimer des tubes</a></li>
           </ul>
         </li>
    
         <li id="btn_terminer" class="hidden"><a href="#" onClick="stop_editing();">Terminer</a></li>
 		<li id="btn_terminer_ajout_tubes" class="hidden"><a href="#" onClick="ajouter_tubes_fin();">Terminer</a></li>
+        <li id="btn_terminer_supprimer_tubes" class="hidden"><a href="#" onClick="supprimer_tubes_fin();">Terminer</a></li>
 		
       </ul>
    
@@ -281,6 +283,26 @@ function ajouter_tubes_fin() {
     
     /* Remise à zéro de la variable temporaire */
     tmpLayerAddTube = "";
+};
+
+function supprimer_tubes() {
+
+    /* Affiche le bouton terminer */
+    $("#dropdownMenu2").addClass('hidden');
+    $("#dropdownMenu1").addClass('hidden');
+    $("#btn_terminer_supprimer_tubes").removeClass('hidden');	
+    
+    suppression = true
+};
+
+function supprimer_tubes_fin() {
+    /* Affiche le bouton terminer */
+    $("#dropdownMenu2").removeClass('hidden');
+    $("#dropdownMenu1").removeClass('hidden');
+    $("#btn_terminer_supprimer_tubes").addClass('hidden');	
+    
+    suppression = false  // TODO: On peut supprimer cette variable juste en regardant si le bouton
+                         // supprimer des tubes est activé!
 };
 
 function start_editing() {
@@ -578,6 +600,13 @@ function onClickFeature(e) {
     /* Récupération des informations du tube */
     tube = this.feature; 
     couche = tube.properties.layer;
+    
+    /* Si session de suppression en cours alors on supprime */
+    
+    if ((couche == "tubes") && (suppression == true)) {
+        // console.log(this.feature);
+        console.log("TODO: Modal de suppression pour le point " + tube.properties.tube_id);
+    };
     
     /* Surbrillance du point selectionné */
     if (couche == "tubes") { 
@@ -1060,8 +1089,10 @@ function loadGeoJson_tubes(data) {
 	tubes_layer.addTo(map); 
 
 	/* Zoom sur les tubes une fois ajoutés */
-    zoom_to_layer(tubes_layer);
-			
+    if (must_zoom == true){
+        zoom_to_layer(tubes_layer);
+	}; 	
+    
     /* Ajoute la couche au contrôleur de couches */
     layerControl.addOverlay(tubes_layer, "Points des mesures");
 }; 
@@ -1194,9 +1225,13 @@ function loadGeoJson_tubes_no2(data) {
     layerControl.addOverlay(tubes_no2_layer, "Points des mesures NO2");
 }; 
 
-/* Enlève les boutons d'édition */
-$("#dropdownMenu2").addClass('hidden');
+// function supprimer_couches(){
+    // tubeslayer
+// };
 
+/* Enlève les boutons d'édition
+$("#dropdownMenu2").addClass('hidden');
+ */
 /* Variable utilisateur (Chargera fichiers de cfg différents) */ 
 var user = "public";
 var layers_orig = {};
@@ -1207,6 +1242,10 @@ var tmpLayer = "";
 var tmpLayer1 = "";
 var tmpLayerAddTube = "";
 var tmp_latlng = "";
+
+/* Autres variables générales */
+var must_zoom = true;
+var suppression = false; 
 
 /* Création des icones */
 var icones = creation_icones();
@@ -1371,11 +1410,63 @@ $("#submitFormTube").click(function (e) {
     
     /* Upload de la photo avant requetes */
     if ($('#tube_photo')[0].files && $('#tube_photo')[0].files[0]) {
+		
+console.log("uploading photo");
+var canvas = document.createElement('canvas');
+var img = document.createElement("img");		
+		
 		var reader = new FileReader();
 		reader.onload = function (e) {
 			
-			// FIXME: Restrictions sur la taille de l'image
-						
+			// FIXME: Restrictions sur la taille de l'image ou modif
+			// http://stackoverflow.com/questions/10333971/html5-pre-resize-images-before-uploading
+			// console.log(e.target.result);
+			// console.log($('#tube_photo')[0].files[0]);
+			
+
+			
+			
+// http://stackoverflow.com/questions/10333971/html5-pre-resize-images-before-uploading
+// console.log(e.target.result);
+
+
+img.src = e.target.result
+console.log(img);
+
+var ctx = canvas.getContext("2d");
+ctx.drawImage(img, 0, 0);
+
+var MAX_WIDTH = 100;
+var MAX_HEIGHT = 500;
+var width = img.width;
+var height = img.height;
+
+console.log(width);
+console.log(height);
+console.log('stop');
+
+if (width > height) {
+  if (width > MAX_WIDTH) {
+    height *= MAX_WIDTH / width;
+    width = MAX_WIDTH;
+  }
+} else {
+  if (height > MAX_HEIGHT) {
+    width *= MAX_HEIGHT / height;
+    height = MAX_HEIGHT;
+  }
+}
+canvas.width = width;
+canvas.height = height;
+var ctx = canvas.getContext("2d");
+ctx.drawImage(img, 0, 0, width, height);
+
+// var dataurl = canvas.toDataURL("image/png");
+var dataurl = canvas.toDataURL("image/jpeg");
+console.log(dataurl.replace('data:image/jpeg;base64,', ''));
+// console.log("fin traitement image");
+// console.log(e.target.result.replace('data:image/jpeg;base64,', ''));
+			
 			/* Execution de la requête et insertion du marqueur */
 			$.ajax({
 				type: "POST",
@@ -1383,7 +1474,8 @@ $("#submitFormTube").click(function (e) {
 				data: { 
 					lat: tmp_latlng.lat, 
 					lng: tmp_latlng.lng,
-					image: e.target.result.replace('data:image/jpeg;base64,', ''),
+					//image: e.target.result.replace('data:image/jpeg;base64,', ''),
+					image: dataurl.replace('data:image/jpeg;base64,', ''),
 					nom: $('#myform_tube').serializeArray()[0].value,
 					type: $('#myform_tube').serializeArray()[1].value
 				},
@@ -1392,54 +1484,32 @@ $("#submitFormTube").click(function (e) {
 					jqXHR.latlng = tmp_latlng;
 					jqXHR.icones = icones;
 					jqXHR.image = e.target.result;
+                    jqXHR.tubes_layer = tubes_layer;
 				},
 				success: function(response,textStatus,jqXHR){
-			  
-					// Insertion d'un noueau markeur
-					if (response[0].typo_nom == "T") {
-						icon_to_use = jqXHR.icones.icon_trafic;
-					} else if (response[0].typo_nom == "U") {
-						icon_to_use = jqXHR.icones.icon_urbain;
-					} else if (response[0].typo_nom == "R") {
-						icon_to_use = jqXHR.icones.icon_rural;		
-					} else if (response[0].typo_nom == "P") {
-						icon_to_use = jqXHR.icones.icon_proximite;			
-					};
-						  
-					var newMarker = new L.marker(jqXHR.latlng, {icon: icon_to_use}).addTo(map); 
-
-
-
-
-
-					// TODO: Il faut ajouter le markeur à la couche des tubes 
-					console.log(tubes_layer._layers);
-					tubes_layer._layers["hh"] = newMarker;
-					 
-					/*
-					for (var key in tubes_layer._layers) {
-						var marker = tubes_layer._layers[key];
-						layers_orig[marker.feature.properties.tube_id] = marker._latlng;
-					};	
-					*/				
 					
+                    /* On supprime la couche tubes avant de la récréer */
+                    for (var key in jqXHR.tubes_layer._layers) {
+                        map.removeLayer(jqXHR.tubes_layer._layers[key]);
+                        
+                    };
+                    
+					/* Chargement de la vue des tubes depuis Geoserver. */
+					var tubes_layer = new L.GeoJSON();
+					var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
+
+                    /* On ne veut pas zoomer au rechargement de la couche tubes */
+                    must_zoom = false;
+                    
+					$.ajax({
+						url: geoJsonUrl,
+						datatype: 'json',
+						jsonCallback: 'getJson',
+						success: loadGeoJson_tubes
+					}); 					
 					
-					
-		 
-					/* Ajoute un popup avec les valeurs de l'objet */
-					var popupcontent = "<h4>" + response[0].tube_nom + "</h4>";
-					popupcontent += "<p><b>Identifiant: </b>" + response[0].tube_id + "<br/>";
-					popupcontent += "<b>Typologie: </b>" + response[0].typo_nom + "<br/>";
-					popupcontent += "<b>Polluants: </b>" + response[0].polluants + "<br/>";
-					popupcontent += "<b>Commune: </b>" + response[0].tube_ville + "</p><br/>";
-					popupcontent += "<img src='data:image/png;base64, " + response[0].tube_image + "'/>";
-					// popupcontent += "<img src='" + jqXHR.image + "'/>";
-					newMarker.bindPopup(popupcontent); 
-		 
 					// Fermeture du formulaire 
 					$("#modal_form_tube").modal('hide');
-					
-					// TODO : Popup Success? > console.log(response);
 		 
 				},
 				error: function (request, error) {
