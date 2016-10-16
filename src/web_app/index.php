@@ -1408,105 +1408,120 @@ $("#submitFormTube").click(function (e) {
 		return;
 	};
     
-    /* Upload de la photo avant requetes */
+    /* 
+	Upload de la photo avant requetes 
+	Sources et aides:
+	http://stackoverflow.com/questions/10333971/html5-pre-resize-images-before-uploading
+	http://stackoverflow.com/questions/30441639/filereader-onload-only-works-the-second-time-around-in-firefox
+	*/
     if ($('#tube_photo')[0].files && $('#tube_photo')[0].files[0]) {
-		
-		// Traitement de l'image	
-		// Code récupéré ici: http://stackoverflow.com/questions/10333971/html5-pre-resize-images-before-uploading
-		var reader = new FileReader();
-		reader.onload = function (e) {
-
+				
+		function completedResult(photoObjs){
+			
 			var canvas = document.createElement('canvas');
 			var img = document.createElement("img");
+			
+			img.onload = function() {
+
+				var MAX_WIDTH = 100;
+				var MAX_HEIGHT = 500;
+				var width = img.width;
+				var height = img.height;
+
+				console.log(width, height);
+				
+				var ctx = canvas.getContext("2d");
+				ctx.drawImage(img, 0, 0);
 		
-			img.src = e.target.result;
+				if (width > height) {
+				  if (width > MAX_WIDTH) {
+					height *= MAX_WIDTH / width;
+					width = MAX_WIDTH;
+				  }
+				} else {
+				  if (height > MAX_HEIGHT) {
+					width *= MAX_HEIGHT / height;
+					height = MAX_HEIGHT;
+				  }
+				}
+				canvas.width = width;
+				canvas.height = height;
+				var ctx = canvas.getContext("2d");
+				ctx.drawImage(img, 0, 0, width, height);
 
-			var ctx = canvas.getContext("2d");
-			ctx.drawImage(img, 0, 0);
+				var dataurl = canvas.toDataURL("image/jpeg"); // peut etre fait en png	
 
-			var MAX_WIDTH = 100;
-			var MAX_HEIGHT = 500;
-			var width = img.width;
-			var height = img.height;
+				// Execution de la requête et insertion du marqueur 
+				$.ajax({
+					type: "POST",
+					url: "scripts/insertion_tube.php",
+					data: { 
+						lat: tmp_latlng.lat, 
+						lng: tmp_latlng.lng,
+						image: dataurl.replace('data:image/jpeg;base64,', ''), //image: e.target.result.replace('data:image/jpeg;base64,', ''),
+						nom: $('#myform_tube').serializeArray()[0].value,
+						type: $('#myform_tube').serializeArray()[1].value
+					},
+					dataType: 'json',
+					beforeSend:function( jqXHR, settings){
+						jqXHR.latlng = tmp_latlng;
+						jqXHR.icones = icones;
+						jqXHR.image = e.target.result;
+						jqXHR.tubes_layer = tubes_layer;
+					},
+					success: function(response,textStatus,jqXHR){
+						
+						// On supprime la couche tubes avant de la récréer 
+						for (var key in jqXHR.tubes_layer._layers) {
+							map.removeLayer(jqXHR.tubes_layer._layers[key]);
+							
+						};
+						
+						// Chargement de la vue des tubes depuis Geoserver. 
+						var tubes_layer = new L.GeoJSON();
+						var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
+
+						// On ne veut pas zoomer au rechargement de la couche tubes 
+						must_zoom = false;
+						
+						$.ajax({
+							url: geoJsonUrl,
+							datatype: 'json',
+							jsonCallback: 'getJson',
+							success: loadGeoJson_tubes
+						}); 					
+						
+						// Fermeture du formulaire 
+						$("#modal_form_tube").modal('hide');
+			 
+					},
+					error: function (request, error) {
+						console.log(arguments);
+						console.log("Ajax error: " + error);
+						$("#error_tube").show();
+					},        
+				});	
+
+				
+			};
 			
-			console.log(width, height);
-
-			if (width > height) {
-			  if (width > MAX_WIDTH) {
-				height *= MAX_WIDTH / width;
-				width = MAX_WIDTH;
-			  }
-			} else {
-			  if (height > MAX_HEIGHT) {
-				width *= MAX_HEIGHT / height;
-				height = MAX_HEIGHT;
-			  }
-			}
-			canvas.width = width;
-			canvas.height = height;
-			var ctx = canvas.getContext("2d");
-			ctx.drawImage(img, 0, 0, width, height);
-
-			var dataurl = canvas.toDataURL("image/jpeg"); // peut etre fait en png
-			
-			// FIXME: Peut ne pas fonctionner le premier coup, pourquoi?
-			
-			// FIXME: Peut ne pas fonctionner sous IOS:
-			// http://stackoverflow.com/questions/11929099/html5-canvas-drawimage-ratio-bug-ios
-			
-			/* Execution de la requête et insertion du marqueur */
-			$.ajax({
-				type: "POST",
-				url: "scripts/insertion_tube.php",
-				data: { 
-					lat: tmp_latlng.lat, 
-					lng: tmp_latlng.lng,
-					image: dataurl.replace('data:image/jpeg;base64,', ''), //image: e.target.result.replace('data:image/jpeg;base64,', ''),
-					nom: $('#myform_tube').serializeArray()[0].value,
-					type: $('#myform_tube').serializeArray()[1].value
-				},
-				dataType: 'json',
-				beforeSend:function( jqXHR, settings){
-					jqXHR.latlng = tmp_latlng;
-					jqXHR.icones = icones;
-					jqXHR.image = e.target.result;
-                    jqXHR.tubes_layer = tubes_layer;
-				},
-				success: function(response,textStatus,jqXHR){
-					
-                    /* On supprime la couche tubes avant de la récréer */
-                    for (var key in jqXHR.tubes_layer._layers) {
-                        map.removeLayer(jqXHR.tubes_layer._layers[key]);
-                        
-                    };
-                    
-					/* Chargement de la vue des tubes depuis Geoserver. */
-					var tubes_layer = new L.GeoJSON();
-					var geoJsonUrl = gs_url + "ows?service=WFS&version=1.0.0&request=GetFeature&typeName=participatubes:tubes_mef&outputFormat=application%2Fjson&format_options=callback:loadGeoJson"; 
-
-                    /* On ne veut pas zoomer au rechargement de la couche tubes */
-                    must_zoom = false;
-                    
-					$.ajax({
-						url: geoJsonUrl,
-						datatype: 'json',
-						jsonCallback: 'getJson',
-						success: loadGeoJson_tubes
-					}); 					
-					
-					// Fermeture du formulaire 
-					$("#modal_form_tube").modal('hide');
-		 
-				},
-				error: function (request, error) {
-					console.log(arguments);
-					console.log("Ajax error: " + error);
-					$("#error_tube").show();
-				},        
-			});			
+			img.src = photoObjs;			
 			
 		};
-		reader.readAsDataURL($('#tube_photo')[0].files[0]);
+
+		// Fonction de chargement de l'image avec callback une fois fini
+		function getPhotos(callback){
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					obj = e.target.result;
+					callback(obj);
+				};
+				reader.readAsDataURL($('#tube_photo')[0].files[0]);
+		};
+
+		// Appel des fonctions de chargement de l'image
+		getPhotos(completedResult);		
+	
 	} else {
 		$("#error_tube").show();
 	};
